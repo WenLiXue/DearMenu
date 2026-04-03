@@ -1,0 +1,138 @@
+.task-card {
+  display: flex;
+  align-items: center;
+  background: #FFF;
+  border-radius: 16px;
+  padding: 14px;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.task-card:active {
+  transform: scale(0.98);
+}
+
+.task-card.completed {
+  opacity: 0.75;
+}
+
+.task-card.cooking {
+  border-left: 4px solid #FF6B6B;
+}
+
+.task-card-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #F7F8FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.task-card-image-placeholder {
+  font-size: 28px;
+}
+
+.task-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.task-card-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-card-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.task-card-tag.favorite {
+  background: rgba(255, 107, 107, 0.15);
+  color: #FF6B6B;
+}
+
+.task-card-tag.simple {
+  background: rgba(78, 205, 196, 0.15);
+  color: #4ECDC4;
+}
+
+.task-card-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.pending {
+  color: #999;
+}
+
+.status-badge.cooking {
+  color: #FF6B6B;
+}
+
+.status-badge.completed {
+  color: #4ECDC4;
+}
+
+.task-card-action {
+  flex-shrink: 0;
+}
+
+.action-btn {
+  border-radius: 16px !important;
+  font-size: 13px !important;
+  padding: 6px 14px !important;
+  transition: all 0.2s ease;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+.start-btn {
+  background: linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%) !important;
+  color: #FFF !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+}
+
+.complete-btn {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%) !important;
+  color: #FFF !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.completed-icon {
+  font-size: 24px;
+}

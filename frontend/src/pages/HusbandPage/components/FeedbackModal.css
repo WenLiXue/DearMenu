@@ -1,0 +1,60 @@
+.feedback-modal .adm-modal-body {
+  padding: 0 !important;
+}
+
+.feedback-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 24px 24px;
+  text-align: center;
+}
+
+.feedback-modal-icon {
+  font-size: 56px;
+  margin-bottom: 12px;
+}
+
+.feedback-modal-title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+}
+
+.feedback-modal-dish {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #4ECDC4;
+  font-weight: 600;
+}
+
+.feedback-modal-tip {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: #999;
+}
+
+.feedback-modal-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%) !important;
+  color: #FFF !important;
+  border: none !important;
+  border-radius: 24px !important;
+  font-size: 16px !important;
+  padding: 14px !important;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+}
+
+.feedback-modal-btn:active {
+  transform: scale(0.98);
+}
+
+.feedback-modal-close {
+  background: transparent !important;
+  color: #999 !important;
+  border: none !important;
+  font-size: 13px !important;
+  padding: 8px !important;
+}

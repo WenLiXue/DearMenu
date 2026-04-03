@@ -1,0 +1,50 @@
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  padding: 0 4px;
+}
+
+.quick-action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 8px !important;
+  border-radius: 16px !important;
+  border: none !important;
+  transition: all 0.2s ease;
+  min-height: 72px;
+}
+
+.quick-action-btn:active {
+  transform: scale(0.95);
+}
+
+.quick-action-icon {
+  font-size: 22px;
+}
+
+.quick-action-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.random-btn {
+  background: linear-gradient(135deg, #FFE66D 0%, #FFF0A0 100%) !important;
+  color: #666 !important;
+  box-shadow: 0 2px 12px rgba(255, 230, 109, 0.3);
+}
+
+.favorite-btn {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%) !important;
+  color: #FFF !important;
+  box-shadow: 0 2px 12px rgba(255, 107, 107, 0.3);
+}
+
+.lazy-btn {
+  background: linear-gradient(135deg, #A8A8A8 0%, #C8C8C8 100%) !important;
+  color: #FFF !important;
+  box-shadow: 0 2px 12px rgba(168, 168, 168, 0.3);
+}

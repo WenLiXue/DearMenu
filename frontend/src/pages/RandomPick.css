@@ -1,0 +1,95 @@
+.random-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.random-main-card {
+  background: #FFF;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(255,230,109,0.25);
+  transition: all 0.4s ease;
+}
+
+.random-main-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255,230,109,0.3);
+}
+
+.card-spin {
+  animation: spin 0.4s ease;
+}
+
+@keyframes spin {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(0.95) rotate(5deg); opacity: 0.7; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.random-card-inner {
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.recommend-reason {
+  color: #FF6B6B;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.random-tip-card {
+  background: #FFF;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.random-btn {
+  border-radius: 18px !important;
+  min-width: 90px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.random-btn:active {
+  transform: scale(0.95);
+}
+
+.favorite-btn {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%) !important;
+  border: none;
+  box-shadow: 0 3px 10px rgba(255,107,107,0.3);
+}
+
+.reroll-btn {
+  background: linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%) !important;
+  color: #FFF;
+  border: none;
+  box-shadow: 0 3px 10px rgba(78,205,196,0.3);
+}
+
+.decide-btn {
+  background: linear-gradient(135deg, #FFE66D 0%, #FFF0A0 100%) !important;
+  color: #333;
+  border: none;
+  border-radius: 20px !important;
+  font-weight: 600;
+  height: 44px;
+  font-size: 14px;
+  box-shadow: 0 4px 16px rgba(255,230,109,0.4);
+  transition: all 0.2s ease;
+}
+
+.decide-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(255,230,109,0.3);
+}
