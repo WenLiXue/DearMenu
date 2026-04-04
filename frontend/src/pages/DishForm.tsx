@@ -37,21 +37,20 @@ export default function DishForm() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', name);
+    const dishData: { name: string; category_id?: string; tags?: string[] } = { name };
     if (categoryId) {
-      formData.append('category_id', categoryId);
+      dishData.category_id = categoryId;
     }
     if (tags.trim()) {
-      formData.append('tags', tags);
+      dishData.tags = tags.split(',').map(t => t.trim()).filter(t => t);
     }
 
     try {
       if (isEdit && id) {
-        await updateDish(id, formData);
+        await updateDish(id, dishData);
         Toast.show({ content: '更新成功', icon: 'success' });
       } else {
-        await addDish(formData);
+        await addDish(dishData);
         Toast.show({ content: '添加成功', icon: 'success' });
       }
       navigate('/dishes');

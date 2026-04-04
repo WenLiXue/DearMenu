@@ -15,8 +15,8 @@ interface DishState {
   fetchFavorites: () => Promise<void>;
   fetchHistory: () => Promise<void>;
   fetchRandomDish: () => Promise<void>;
-  addDish: (formData: FormData) => Promise<void>;
-  updateDish: (id: string, formData: FormData) => Promise<void>;
+  addDish: (data: { name: string; category_id?: string; tags?: string[] }) => Promise<void>;
+  updateDish: (id: string, data: { name?: string; category_id?: string; tags?: string[] }) => Promise<void>;
   removeDish: (id: string) => Promise<void>;
   addFavorite: (dishId: string) => Promise<void>;
   removeFavorite: (dishId: string) => Promise<void>;
@@ -73,10 +73,10 @@ export const useDishStore = create<DishState>((set, get) => ({
     }
   },
 
-  addDish: async (formData: FormData) => {
+  addDish: async (data) => {
     set({ isLoading: true, error: null });
     try {
-      const dish = await api.createDish(formData);
+      const dish = await api.createDish(data);
       set((state) => ({
         dishes: [...state.dishes, dish],
         isLoading: false,
@@ -87,10 +87,10 @@ export const useDishStore = create<DishState>((set, get) => ({
     }
   },
 
-  updateDish: async (id: number, formData: FormData) => {
+  updateDish: async (id, data) => {
     set({ isLoading: true, error: null });
     try {
-      const dish = await api.updateDish(id, formData);
+      const dish = await api.updateDish(id, data);
       set((state) => ({
         dishes: state.dishes.map((d) => (d.id === id ? dish : d)),
         isLoading: false,

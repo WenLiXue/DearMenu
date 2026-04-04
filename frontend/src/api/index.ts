@@ -68,12 +68,12 @@ export const getDishes = async (categoryId?: number): Promise<Dish[]> => {
   return response.data;
 };
 
-export const createDish = async (data: FormData): Promise<Dish> => {
+export const createDish = async (data: { name: string; category_id?: string; tags?: string[]; rating?: number }): Promise<Dish> => {
   const response = await api.post<Dish>('/dishes', data, { headers: getAuthHeaders() });
   return response.data;
 };
 
-export const updateDish = async (id: number, data: FormData): Promise<Dish> => {
+export const updateDish = async (id: number, data: { name?: string; category_id?: string; tags?: string[]; rating?: number }): Promise<Dish> => {
   const response = await api.put<Dish>(`/dishes/${id}`, data, { headers: getAuthHeaders() });
   return response.data;
 };
