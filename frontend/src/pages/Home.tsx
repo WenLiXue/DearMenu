@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { NavBar, Card, Button, Toast } from 'antd-mobile';
 import { useAuthStore } from '../stores/authStore';
 import { useDishStore } from '../stores/dishStore';
+import { generateInviteCode } from '../api';
 import './Home.css';
 
 function InteractiveCard({ onClick, children, style }: { onClick?: () => void; children: React.ReactNode; style?: React.CSSProperties }) {
@@ -41,13 +42,30 @@ export default function Home() {
   const { user, logout, familyId } = useAuthStore();
   const { fetchRandomDish, randomDish } = useDishStore();
   const [animateCard, setAnimateCard] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string>(familyId || '');
 
   const greeting = getGreeting();
 
-  const handleCopyInviteCode = () => {
+  useEffect(() => {
     if (familyId) {
-      navigator.clipboard.writeText(familyId);
+      setInviteCode(familyId);
+    }
+  }, [familyId]);
+
+  const handleCopyInviteCode = () => {
+    if (inviteCode) {
+      navigator.clipboard.writeText(inviteCode);
       Toast.show({ content: '邀请码已复制~', icon: 'success' });
+    }
+  };
+
+  const handleRegenerateCode = async () => {
+    try {
+      const result = await generateInviteCode();
+      setInviteCode(result.invite_code);
+      Toast.show({ content: '邀请码已重新生成~', icon: 'success' });
+    } catch (error: any) {
+      Toast.show({ content: error.message || '生成邀请码失败', icon: 'fail' });
     }
   };
 
@@ -87,18 +105,23 @@ export default function Home() {
         </div>
 
         {/* 邀请码区域 - 仅 wife 角色显示 */}
-        {user?.role === 'wife' && familyId && (
+        {user?.role === 'wife' && (
           <Card style={{ marginBottom: '16px', borderRadius: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>家庭邀请码</div>
                 <div style={{ fontSize: '18px', fontWeight: 600, color: '#FF6B6B', fontFamily: 'monospace' }}>
-                  {familyId}
+                  {inviteCode || '加载中...'}
                 </div>
               </div>
-              <Button size="small" color="primary" onClick={handleCopyInviteCode}>
-                复制
-              </Button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <Button size="small" color="primary" onClick={handleCopyInviteCode}>
+                  复制
+                </Button>
+                <Button size="small" color="danger" onClick={handleRegenerateCode}>
+                  重新生成
+                </Button>
+              </div>
             </div>
             <div style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
               老公可以通过这个邀请码加入家庭~

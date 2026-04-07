@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, Role } from '../types';
 import * as api from '../api';
+import { getErrorMessage } from '../utils/error';
 
 interface AuthState {
   user: { id: string; username: string; role: Role; familyId: string } | null;
@@ -41,9 +42,10 @@ export const useAuthStore = create<AuthState>()(
             familyId: response.family_id,
           });
           localStorage.setItem('token', response.access_token);
+          return response;
         } catch (error: any) {
           set({
-            error: error.response?.data?.detail || '登录失败',
+            error: getErrorMessage(error, '登录失败'),
             isLoading: false,
           });
           throw error;
@@ -65,7 +67,7 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem('token', response.access_token);
         } catch (error: any) {
           set({
-            error: error.response?.data?.detail || '注册失败',
+            error: getErrorMessage(error, '注册失败'),
             isLoading: false,
           });
           throw error;

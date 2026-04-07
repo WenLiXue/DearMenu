@@ -60,7 +60,7 @@ export default function Register() {
       const homePath = role === 'wife' ? '/home' : role === 'husband' ? '/husband' : '/admin';
       navigate(homePath);
     } catch (error: any) {
-      const message = error.response?.data?.detail || '哎呀，注册失败了';
+      const message = error.response?.data?.message || error.message || '哎呀，注册失败了';
       Toast.show({ content: String(message), icon: 'fail' });
     } finally {
       setLoading(false);

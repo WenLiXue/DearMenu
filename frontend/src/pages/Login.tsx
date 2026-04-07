@@ -26,18 +26,12 @@ export default function Login() {
   const handleSubmit = async (values: { username: string; password: string }) => {
     setLoading(true);
     try {
-      await login(values.username, values.password);
+      const response = await login(values.username, values.password);
       Toast.show({ content: '欢迎回来~', icon: 'success' });
-      // 根据角色跳转到对应首页
-      // 注意：login 后 role 已经在 store 中了，但这里是异步的，
-      // 需要从 response 获取。实际上 login 函数会设置 role
-      // 这里先假设直接跳转，因为 API 会返回 role
-      // 更好的做法是让 login 返回 role
-      const storedRole = useAuthStore.getState().role;
-      const homePath = storedRole ? getHomePath(storedRole) : '/home';
+      const homePath = getHomePath(response.role);
       navigate(homePath);
     } catch (error: any) {
-      const message = error.response?.data?.detail || '哎呀，登录失败了，再试一次吧';
+      const message = error.response?.data?.message || error.message || '哎呀，登录失败了，再试一次吧';
       Toast.show({ content: String(message), icon: 'fail' });
     } finally {
       setLoading(false);
