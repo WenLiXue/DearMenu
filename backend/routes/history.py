@@ -1,17 +1,18 @@
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import OrderHistory, Dish, User
 from schemas import HistoryResponse, DishResponse
 from auth import get_current_user
+from utils.response import success_response, error_response, list_response
 
 router = APIRouter(prefix="/api/history", tags=["历史记录"])
 
 
-@router.get("", response_model=List[DishResponse])
+@router.get("")
 def get_history(
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
@@ -23,10 +24,13 @@ def get_history(
 
     dish_ids = [h.dish_id for h in history]
     dishes = db.query(Dish).filter(Dish.id.in_(dish_ids)).all()
-    return dishes
+
+    # 返回列表响应（统一格式）
+    dish_list = [DishResponse.model_validate(d).model_dump(mode='json') for d in dishes]
+    return list_response(data=dish_list, total=len(dish_list))
 
 
-@router.post("/{dish_id}", response_model=HistoryResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/{dish_id}", status_code=status.HTTP_201_CREATED)
 def add_history(
     dish_id: UUID,
     db: Session = Depends(get_db),
@@ -39,13 +43,14 @@ def add_history(
     ).first()
 
     if not dish:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="菜品不存在"
-        )
+        return error_response(message="菜品不存在", code=status.HTTP_404_NOT_FOUND)
 
     history = OrderHistory(user_id=current_user.id, family_id=current_user.family_id, dish_id=dish_id)
     db.add(history)
     db.commit()
     db.refresh(history)
-    return history
+
+    return success_response(
+        data=HistoryResponse.model_validate(history).model_dump(mode='json'),
+        message="历史记录添加成功"
+    )

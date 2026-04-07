@@ -119,6 +119,7 @@ class OrderHistory(Base):
     family_id = Column(UUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False)
     dish_id = Column(UUID(as_uuid=True), ForeignKey("dishes.id", ondelete="CASCADE"), nullable=False)
     status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
+    notes = Column(Text, nullable=True)  # 点餐备注
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     cooked_at = Column(DateTime(timezone=True), nullable=True)
 

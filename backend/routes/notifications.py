@@ -1,12 +1,13 @@
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import Notification, User
 from schemas import NotificationCreate, NotificationResponse, NotificationUnreadCountResponse
 from auth import require_family
+from utils.response import success_response, error_response, list_response
 
 router = APIRouter(prefix="/api/notifications", tags=["通知"])
 
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/api/notifications", tags=["通知"])
 NOTIFICATION_TYPES = ["notification", "message", "task", "celebration"]
 
 
-@router.post("", response_model=NotificationResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_notification(
     notification: NotificationCreate,
     db: Session = Depends(get_db),
@@ -24,24 +25,18 @@ def create_notification(
     """发送通知"""
     # 验证通知类型
     if notification.type not in NOTIFICATION_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"通知类型必须是: {', '.join(NOTIFICATION_TYPES)}"
+        return error_response(
+            message=f"通知类型必须是: {', '.join(NOTIFICATION_TYPES)}",
+            code=status.HTTP_400_BAD_REQUEST
         )
 
     # 验证接收者存在且属于同一家庭
     recipient = db.query(User).filter(User.id == notification.user_id).first()
     if not recipient:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="接收通知的用户不存在"
-        )
+        return error_response(message="接收通知的用户不存在", code=status.HTTP_404_NOT_FOUND)
 
     if recipient.family_id != current_user.family_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="不能向其他家庭的用户发送通知"
-        )
+        return error_response(message="不能向其他家庭的用户发送通知", code=status.HTTP_403_FORBIDDEN)
 
     # 创建通知
     new_notification = Notification(
@@ -55,10 +50,14 @@ def create_notification(
     db.add(new_notification)
     db.commit()
     db.refresh(new_notification)
-    return new_notification
+
+    return success_response(
+        data=NotificationResponse.model_validate(new_notification).model_dump(mode='json'),
+        message="通知发送成功"
+    )
 
 
-@router.get("", response_model=List[NotificationResponse])
+@router.get("")
 def get_notifications(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -73,10 +72,11 @@ def get_notifications(
         Notification.created_at.desc()
     ).offset(offset).limit(limit).all()
 
-    return notifications
+    notification_list = [NotificationResponse.model_validate(n).model_dump(mode='json') for n in notifications]
+    return list_response(data=notification_list, total=len(notification_list))
 
 
-@router.put("/{notification_id}/read", response_model=NotificationResponse)
+@router.put("/{notification_id}/read")
 def mark_notification_as_read(
     notification_id: UUID,
     db: Session = Depends(get_db),
@@ -89,18 +89,19 @@ def mark_notification_as_read(
     ).first()
 
     if not notification:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="通知不存在"
-        )
+        return error_response(message="通知不存在", code=status.HTTP_404_NOT_FOUND)
 
     notification.is_read = True
     db.commit()
     db.refresh(notification)
-    return notification
+
+    return success_response(
+        data=NotificationResponse.model_validate(notification).model_dump(mode='json'),
+        message="通知已标记为已读"
+    )
 
 
-@router.put("/read-all", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/read-all")
 def mark_all_notifications_as_read(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
@@ -111,10 +112,11 @@ def mark_all_notifications_as_read(
         Notification.is_read == False
     ).update({"is_read": True})
     db.commit()
-    return None
+
+    return success_response(message="所有通知已标记为已读")
 
 
-@router.delete("/{notification_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{notification_id}")
 def delete_notification(
     notification_id: UUID,
     db: Session = Depends(get_db),
@@ -127,17 +129,15 @@ def delete_notification(
     ).first()
 
     if not notification:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="通知不存在"
-        )
+        return error_response(message="通知不存在", code=status.HTTP_404_NOT_FOUND)
 
     db.delete(notification)
     db.commit()
-    return None
+
+    return success_response(message="通知删除成功")
 
 
-@router.get("/unread-count", response_model=NotificationUnreadCountResponse)
+@router.get("/unread-count")
 def get_unread_count(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
@@ -148,4 +148,4 @@ def get_unread_count(
         Notification.is_read == False
     ).count()
 
-    return NotificationUnreadCountResponse(unread_count=count)
+    return success_response(data={"unread_count": count})

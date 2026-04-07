@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 from datetime import datetime, date
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -13,13 +13,14 @@ from schemas import (
     AdminStatsResponse, FavoriteResponse, HistoryResponse
 )
 from auth import get_current_user
+from utils.response import success_response, error_response, list_response
 
 router = APIRouter(prefix="/api/admin", tags=["管理员"])
 
 
 # ============ 菜品管理 ============
 
-@router.get("/dishes", response_model=dict)
+@router.get("/dishes")
 def get_dishes(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
@@ -40,16 +41,18 @@ def get_dishes(
     total = query.count()
     dishes = query.order_by(Dish.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
 
-    return {
-        "items": dishes,
-        "total": total,
-        "page": page,
-        "page_size": page_size,
-        "total_pages": (total + page_size - 1) // page_size
-    }
+    return success_response(
+        data={
+            "items": [AdminDishResponse.model_validate(d).model_dump(mode='json') for d in dishes],
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total + page_size - 1) // page_size
+        }
+    )
 
 
-@router.post("/dishes", response_model=AdminDishResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/dishes", status_code=status.HTTP_201_CREATED)
 def create_dish(
     dish_data: AdminDishCreate,
     db: Session = Depends(get_db),
@@ -69,10 +72,14 @@ def create_dish(
     db.add(dish)
     db.commit()
     db.refresh(dish)
-    return dish
+
+    return success_response(
+        data=AdminDishResponse.model_validate(dish).model_dump(mode='json'),
+        message="菜品创建成功"
+    )
 
 
-@router.put("/dishes/{dish_id}", response_model=AdminDishResponse)
+@router.put("/dishes/{dish_id}")
 def update_dish(
     dish_id: UUID,
     dish_data: AdminDishUpdate,
@@ -86,10 +93,7 @@ def update_dish(
     ).first()
 
     if not dish:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="菜品不存在"
-        )
+        return error_response(message="菜品不存在", code=status.HTTP_404_NOT_FOUND)
 
     if dish_data.name is not None:
         dish.name = dish_data.name
@@ -106,10 +110,14 @@ def update_dish(
 
     db.commit()
     db.refresh(dish)
-    return dish
+
+    return success_response(
+        data=AdminDishResponse.model_validate(dish).model_dump(mode='json'),
+        message="菜品更新成功"
+    )
 
 
-@router.delete("/dishes/{dish_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/dishes/{dish_id}")
 def delete_dish(
     dish_id: UUID,
     db: Session = Depends(get_db),
@@ -122,18 +130,17 @@ def delete_dish(
     ).first()
 
     if not dish:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="菜品不存在"
-        )
+        return error_response(message="菜品不存在", code=status.HTTP_404_NOT_FOUND)
 
     db.delete(dish)
     db.commit()
 
+    return success_response(message="菜品删除成功")
+
 
 # ============ 分类管理 ============
 
-@router.get("/categories", response_model=List[AdminCategoryResponse])
+@router.get("/categories")
 def get_categories(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -142,10 +149,12 @@ def get_categories(
     categories = db.query(Category).filter(
         Category.family_id == current_user.family_id
     ).order_by(Category.sort_order).all()
-    return categories
+
+    category_list = [AdminCategoryResponse.model_validate(c).model_dump(mode='json') for c in categories]
+    return list_response(data=category_list, total=len(category_list))
 
 
-@router.post("/categories", response_model=AdminCategoryResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/categories", status_code=status.HTTP_201_CREATED)
 def create_category(
     category_data: AdminCategoryCreate,
     db: Session = Depends(get_db),
@@ -162,10 +171,14 @@ def create_category(
     db.add(category)
     db.commit()
     db.refresh(category)
-    return category
+
+    return success_response(
+        data=AdminCategoryResponse.model_validate(category).model_dump(mode='json'),
+        message="分类创建成功"
+    )
 
 
-@router.put("/categories/{category_id}", response_model=AdminCategoryResponse)
+@router.put("/categories/{category_id}")
 def update_category(
     category_id: UUID,
     category_data: AdminCategoryUpdate,
@@ -179,10 +192,7 @@ def update_category(
     ).first()
 
     if not category:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="分类不存在"
-        )
+        return error_response(message="分类不存在", code=status.HTTP_404_NOT_FOUND)
 
     if category_data.name is not None:
         category.name = category_data.name
@@ -193,39 +203,42 @@ def update_category(
 
     db.commit()
     db.refresh(category)
-    return category
+
+    return success_response(
+        data=AdminCategoryResponse.model_validate(category).model_dump(mode='json'),
+        message="分类更新成功"
+    )
 
 
-@router.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/categories/{category_id}")
 def delete_category(
     category_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """删除分类（关联菜品会被设置为NULL）"""
+    """删除分类"""
     category = db.query(Category).filter(
         Category.id == category_id,
         Category.family_id == current_user.family_id
     ).first()
 
     if not category:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="分类不存在"
-        )
+        return error_response(message="分类不存在", code=status.HTTP_404_NOT_FOUND)
 
     db.delete(category)
     db.commit()
 
+    return success_response(message="分类删除成功")
+
 
 # ============ 收藏管理 ============
 
-@router.get("/favorites", response_model=List[dict])
+@router.get("/favorites")
 def get_favorites(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """获取所有收藏记录（包含菜品信息）"""
+    """获取所有收藏记录"""
     favorites = db.query(Favorite).filter(
         Favorite.family_id == current_user.family_id
     ).order_by(Favorite.created_at.desc()).all()
@@ -235,18 +248,19 @@ def get_favorites(
         dish = db.query(Dish).filter(Dish.id == fav.dish_id).first()
         if dish:
             result.append({
-                "id": fav.id,
-                "dish_id": fav.dish_id,
+                "id": str(fav.id),
+                "dish_id": str(fav.dish_id),
                 "dish_name": dish.name,
                 "dish_rating": dish.rating,
-                "created_at": fav.created_at
+                "created_at": fav.created_at.isoformat()
             })
-    return result
+
+    return list_response(data=result, total=len(result))
 
 
 # ============ 历史记录 ============
 
-@router.get("/history", response_model=dict)
+@router.get("/history")
 def get_history(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
@@ -268,25 +282,27 @@ def get_history(
         dish = db.query(Dish).filter(Dish.id == record.dish_id).first()
         if dish:
             result.append({
-                "id": record.id,
-                "dish_id": record.dish_id,
+                "id": str(record.id),
+                "dish_id": str(record.dish_id),
                 "dish_name": dish.name,
                 "dish_rating": dish.rating,
-                "created_at": record.created_at
+                "created_at": record.created_at.isoformat()
             })
 
-    return {
-        "items": result,
-        "total": total,
-        "page": page,
-        "page_size": page_size,
-        "total_pages": (total + page_size - 1) // page_size if total > 0 else 0
-    }
+    return success_response(
+        data={
+            "items": result,
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total + page_size - 1) // page_size if total > 0 else 0
+        }
+    )
 
 
 # ============ 统计 ============
 
-@router.get("/stats", response_model=AdminStatsResponse)
+@router.get("/stats")
 def get_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -303,10 +319,12 @@ def get_stats(
         func.date(OrderHistory.created_at) == today
     ).count()
 
-    return AdminStatsResponse(
+    response = AdminStatsResponse(
         total_dishes=total_dishes,
         total_categories=total_categories,
         total_favorites=total_favorites,
         total_history=total_history,
         today_orders=today_orders
     )
+
+    return success_response(data=response.model_dump(mode='json'))

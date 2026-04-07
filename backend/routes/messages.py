@@ -1,6 +1,6 @@
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_, desc, func
 
@@ -8,11 +8,12 @@ from database import get_db
 from models import Message, User, Notification
 from schemas import MessageCreate, MessageResponse, MessageConversationResponse, MessageUnreadCountResponse
 from auth import require_family
+from utils.response import success_response, error_response, list_response
 
 router = APIRouter(prefix="/api/messages", tags=["消息"])
 
 
-@router.post("", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def send_message(
     message: MessageCreate,
     db: Session = Depends(get_db),
@@ -22,24 +23,15 @@ def send_message(
     # 验证接收者存在
     receiver = db.query(User).filter(User.id == message.receiver_id).first()
     if not receiver:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="接收者不存在"
-        )
+        return error_response(message="接收者不存在", code=status.HTTP_404_NOT_FOUND)
 
     # 验证接收者属于同一家庭
     if receiver.family_id != current_user.family_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="不能向其他家庭的用户发送消息"
-        )
+        return error_response(message="不能向其他家庭的用户发送消息", code=status.HTTP_403_FORBIDDEN)
 
     # 不能给自己发消息
     if message.receiver_id == current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="不能给自己发送消息"
-        )
+        return error_response(message="不能给自己发送消息", code=status.HTTP_400_BAD_REQUEST)
 
     # 创建消息
     new_message = Message(
@@ -66,7 +58,7 @@ def send_message(
     db.refresh(new_message)
 
     # 返回消息响应（包含发送者用户名）
-    return MessageResponse(
+    msg_response = MessageResponse(
         id=new_message.id,
         sender_id=new_message.sender_id,
         receiver_id=new_message.receiver_id,
@@ -76,8 +68,10 @@ def send_message(
         sender_username=current_user.username
     )
 
+    return success_response(data=msg_response.model_dump(), message="消息发送成功")
 
-@router.get("", response_model=List[MessageResponse])
+
+@router.get("")
 def get_conversation(
     conversation_with: UUID = Query(..., description="对方用户ID"),
     limit: int = Query(50, ge=1, le=100),
@@ -89,16 +83,10 @@ def get_conversation(
     # 验证对方用户存在且属于同一家庭
     other_user = db.query(User).filter(User.id == conversation_with).first()
     if not other_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="用户不存在"
-        )
+        return error_response(message="用户不存在", code=status.HTTP_404_NOT_FOUND)
 
     if other_user.family_id != current_user.family_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="不能查看与其他家庭用户的对话"
-        )
+        return error_response(message="不能查看与其他家庭用户的对话", code=status.HTTP_403_FORBIDDEN)
 
     # 获取对话消息（双向）
     messages = db.query(Message).filter(
@@ -132,10 +120,10 @@ def get_conversation(
             sender_username=sender_username
         ))
 
-    return result
+    return list_response(data=[r.model_dump() for r in result], total=len(result))
 
 
-@router.get("/conversations", response_model=List[MessageConversationResponse])
+@router.get("/conversations")
 def get_conversations(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
@@ -166,11 +154,9 @@ def get_conversations(
             Message.is_read == False
         ).count()
 
-        conversations.append(MessageConversationResponse(
-            user_id=other_user.id,
-            username=other_user.username,
-            role=other_user.role.value if hasattr(other_user.role, 'value') else other_user.role,
-            last_message=MessageResponse(
+        last_msg_response = None
+        if last_message:
+            last_msg_response = MessageResponse(
                 id=last_message.id,
                 sender_id=last_message.sender_id,
                 receiver_id=last_message.receiver_id,
@@ -178,7 +164,13 @@ def get_conversations(
                 is_read=last_message.is_read,
                 created_at=last_message.created_at,
                 sender_username=current_user.username if last_message.sender_id == current_user.id else other_user.username
-            ) if last_message else None,
+            )
+
+        conversations.append(MessageConversationResponse(
+            user_id=other_user.id,
+            username=other_user.username,
+            role=other_user.role.value if hasattr(other_user.role, 'value') else other_user.role,
+            last_message=last_msg_response,
             unread_count=unread_count
         ))
 
@@ -188,10 +180,10 @@ def get_conversations(
         reverse=True
     )
 
-    return conversations
+    return success_response(data=[c.model_dump() for c in conversations])
 
 
-@router.put("/{message_id}/read", response_model=MessageResponse)
+@router.put("/{message_id}/read")
 def mark_message_as_read(
     message_id: UUID,
     db: Session = Depends(get_db),
@@ -204,10 +196,7 @@ def mark_message_as_read(
     ).first()
 
     if not message:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="消息不存在"
-        )
+        return error_response(message="消息不存在", code=status.HTTP_404_NOT_FOUND)
 
     message.is_read = True
     db.commit()
@@ -217,7 +206,7 @@ def mark_message_as_read(
     sender = db.query(User).filter(User.id == message.sender_id).first()
     sender_username = sender.username if sender else None
 
-    return MessageResponse(
+    msg_response = MessageResponse(
         id=message.id,
         sender_id=message.sender_id,
         receiver_id=message.receiver_id,
@@ -227,8 +216,10 @@ def mark_message_as_read(
         sender_username=sender_username
     )
 
+    return success_response(data=msg_response.model_dump(), message="消息已标记为已读")
 
-@router.get("/unread-count", response_model=MessageUnreadCountResponse)
+
+@router.get("/unread-count")
 def get_unread_count(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
@@ -239,4 +230,4 @@ def get_unread_count(
         Message.is_read == False
     ).count()
 
-    return MessageUnreadCountResponse(unread_count=count)
+    return success_response(data={"unread_count": count})

@@ -18,6 +18,7 @@ from schemas import (
     CategoryStatItem
 )
 from auth import get_current_user
+from utils.response import success_response, list_response
 
 router = APIRouter(prefix="/api/stats", tags=["数据统计"])
 
@@ -32,7 +33,7 @@ def get_month_start(d: date) -> date:
     return d.replace(day=1)
 
 
-@router.get("/dashboard", response_model=DashboardStatsResponse)
+@router.get("/dashboard")
 def get_dashboard_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -72,13 +73,13 @@ def get_dashboard_stats(
             OrderHistory.family_id == family_id,
             func.date(OrderHistory.created_at) == day
         ).count()
-        weekly_orders.append({
-            "date": day.isoformat(),
-            "count": count
-        })
+        weekly_orders.append(TrendData(
+            date=day.isoformat(),
+            count=count
+        ))
 
     # 本周总订单
-    week_total = sum(d["count"] for d in weekly_orders)
+    week_total = sum(d.count for d in weekly_orders)
 
     # 本周完成数
     week_completed = db.query(OrderHistory).filter(
@@ -87,7 +88,7 @@ def get_dashboard_stats(
         OrderHistory.status == TaskStatus.COMPLETED
     ).count()
 
-    return DashboardStatsResponse(
+    response = DashboardStatsResponse(
         total_dishes=total_dishes,
         total_categories=total_categories,
         total_favorites=total_favorites,
@@ -100,8 +101,10 @@ def get_dashboard_stats(
         weekly_trend=weekly_orders
     )
 
+    return success_response(data=response.model_dump(mode='json'))
 
-@router.get("/weekly", response_model=WeeklyStatsResponse)
+
+@router.get("/weekly")
 def get_weekly_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -137,7 +140,7 @@ def get_weekly_stats(
     # 计算完成率
     completion_rate = (total_completed / total_orders * 100) if total_orders > 0 else 0
 
-    return WeeklyStatsResponse(
+    response = WeeklyStatsResponse(
         start_date=week_start.isoformat(),
         end_date=(week_start + timedelta(days=6)).isoformat(),
         daily_stats=daily_stats,
@@ -146,8 +149,10 @@ def get_weekly_stats(
         completion_rate=round(completion_rate, 1)
     )
 
+    return success_response(data=response.model_dump(mode='json'))
 
-@router.get("/monthly", response_model=MonthlyStatsResponse)
+
+@router.get("/monthly")
 def get_monthly_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -214,7 +219,7 @@ def get_monthly_stats(
     # 完成率
     completion_rate = (total_completed / total_orders * 100) if total_orders > 0 else 0
 
-    return MonthlyStatsResponse(
+    response = MonthlyStatsResponse(
         start_date=month_start.isoformat(),
         end_date=today.isoformat(),
         total_orders=total_orders,
@@ -225,8 +230,10 @@ def get_monthly_stats(
         top_dishes=top_dishes
     )
 
+    return success_response(data=response.model_dump(mode='json'))
 
-@router.get("/top-dishes", response_model=TopDishesResponse)
+
+@router.get("/top-dishes")
 def get_top_dishes(
     limit: int = Query(5, ge=1, le=20),
     db: Session = Depends(get_db),
@@ -263,10 +270,11 @@ def get_top_dishes(
                 rating=dish.rating
             ))
 
-    return TopDishesResponse(dishes=result, total=len(result))
+    response = TopDishesResponse(dishes=result, total=len(result))
+    return success_response(data=response.model_dump(mode='json'))
 
 
-@router.get("/category-analysis", response_model=CategoryAnalysisResponse)
+@router.get("/category-analysis")
 def get_category_analysis(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -310,4 +318,5 @@ def get_category_analysis(
     # 按点餐次数排序
     result.sort(key=lambda x: x.order_count, reverse=True)
 
-    return CategoryAnalysisResponse(categories=result, total=len(result))
+    response = CategoryAnalysisResponse(categories=result, total=len(result))
+    return success_response(data=response.model_dump(mode='json'))

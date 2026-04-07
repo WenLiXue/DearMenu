@@ -6,7 +6,7 @@ from typing import List, Optional, Dict, Tuple
 from uuid import UUID
 from datetime import datetime, timedelta
 from collections import defaultdict
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -20,6 +20,7 @@ from schemas import (
     RecommendationFeedbackResponse
 )
 from auth import get_current_user, require_family
+from utils.response import success_response, error_response, list_response
 
 router = APIRouter(prefix="/api/recommendations", tags=["智能推荐"])
 
@@ -30,7 +31,7 @@ recommendation_cache: Dict[str, Tuple[SmartRecommendationResponse, datetime]] = 
 # 时间段定义
 TIME_PERIODS = {
     "breakfast": (5, 10),    # 5:00 - 10:00 早餐
-    "lunch": (10, 14),        # 10:00 - 14:00 午餐
+    "lunch": (10, 14),        # 10:00 - 14:00 Lunch
     "afternoon": (14, 17),    # 14:00 - 17:00 下午茶
     "dinner": (17, 21),       # 17:00 - 21:00 晚餐
     "night": (21, 5),         # 21:00 - 5:00 夜宵
@@ -94,14 +95,10 @@ def set_cached_recommendations(cache_key: str, response: SmartRecommendationResp
 
 def calculate_frequency_weight(order_history: List[OrderHistory], dish_id: UUID,
                                 days: int = 30) -> float:
-    """
-    计算频率权重 - 最近点过的菜更可能再次想吃
-    基于时间衰减函数，越近期的订单权重越高
-    """
+    """计算频率权重"""
     now = datetime.now()
     cutoff_date = now - timedelta(days=days)
 
-    # 获取该菜品的订单历史
     dish_orders = [o for o in order_history
                   if o.dish_id == dish_id and o.created_at >= cutoff_date]
 
@@ -110,46 +107,37 @@ def calculate_frequency_weight(order_history: List[OrderHistory], dish_id: UUID,
 
     weight = 0.0
     for order in dish_orders:
-        # 时间衰减：每天衰减一半权重
         days_ago = (now - order.created_at).days
-        decay = math.pow(0.5, days_ago / 7)  # 每7天衰减一半
+        decay = math.pow(0.5, days_ago / 7)
         weight += decay
 
-    return min(weight, 3.0)  # 最多3.0权重
+    return min(weight, 3.0)
 
 
 def calculate_rating_weight(dish: Dish) -> float:
-    """计算评分权重 - 评分高的菜优先推荐"""
-    # 评分 1-5 映射到权重 0.2-1.0
+    """计算评分权重"""
     return 0.2 + (dish.rating - 1) * 0.2
 
 
 def calculate_category_diversity_score(dish: Dish, selected_categories: List[UUID]) -> float:
-    """
-    计算分类多样性得分 - 避免总是推荐同一分类
-    如果选择的分类在已推荐中已存在，则降低分数
-    """
+    """计算分类多样性得分"""
     if not selected_categories:
         return 1.0
 
     if dish.category_id in selected_categories:
-        # 同一分类的菜品权重降低
         return 0.3
 
     return 1.0
 
 
 def calculate_time_period_score(dish: Dish, categories: List[Category]) -> float:
-    """
-    计算时间因素得分 - 不同时段推荐不同类型
-    """
+    """计算时间因素得分"""
     current_period = get_current_time_period()
     period_keywords = TIME_PERIOD_CATEGORIES.get(current_period, [])
 
     if not period_keywords:
         return 1.0
 
-    # 检查菜品名称或分类名是否匹配当前时段关键词
     dish_name = dish.name.lower()
     category_name = ""
     if dish.category:
@@ -157,18 +145,14 @@ def calculate_time_period_score(dish: Dish, categories: List[Category]) -> float
 
     for keyword in period_keywords:
         if keyword.lower() in dish_name or keyword.lower() in category_name:
-            return 1.5  # 匹配时段，返回加分
+            return 1.5
 
-    return 0.8  # 不匹配，轻微降分
+    return 0.8
 
 
 def calculate_feedback_weight(db: Session, user_id: UUID, dish_id: UUID,
                                user_history: List[OrderHistory]) -> Tuple[float, str]:
-    """
-    计算反馈权重 - 基于用户的历史反馈
-    返回 (权重, 原因)
-    """
-    # 获取用户对该菜品的反馈
+    """计算反馈权重"""
     feedback = db.query(RecommendationFeedback).filter(
         RecommendationFeedback.user_id == user_id,
         RecommendationFeedback.dish_id == dish_id
@@ -180,7 +164,6 @@ def calculate_feedback_weight(db: Session, user_id: UUID, dish_id: UUID,
         elif feedback.feedback == "dislike":
             return 0.1, "你不太喜欢这道菜"
 
-    # 检查是否是家庭成员常点的
     dish_order_count = sum(1 for o in user_history if o.dish_id == dish_id)
     if dish_order_count >= 3:
         return 1.3, "这是你的常点菜"
@@ -196,9 +179,7 @@ def calculate_smart_score(
     user_id: UUID,
     selected_categories: List[UUID]
 ) -> Tuple[float, str]:
-    """
-    综合计算智能推荐分数
-    """
+    """综合计算智能推荐分数"""
     score = 1.0
     reasons = []
 
@@ -232,45 +213,33 @@ def calculate_smart_score(
     if feedback_reason:
         reasons.append(feedback_reason)
 
-    # 6. 随机性 (权重系数: 0.3) - 增加趣味性
-    random_factor = 1.0 + random.random() * 0.4  # 1.0-1.4
+    # 6. 随机性 (权重系数: 0.3)
+    random_factor = 1.0 + random.random() * 0.4
     score *= random_factor
 
     reason = " ".join(reasons) if reasons else "推荐"
     return score, reason
 
 
-@router.get("", response_model=SmartRecommendationResponse)
+@router.get("")
 def get_smart_recommendations(
     limit: int = Query(5, ge=1, le=20),
     include_disliked: bool = Query(False, description="是否包含不喜欢的菜品"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
 ):
-    """
-    获取智能推荐列表
-
-    推荐算法考虑因素：
-    1. 频率权重 - 最近点过的菜更可能再次想吃
-    2. 评分权重 - 评分高的菜优先推荐
-    3. 分类多样性 - 避免总是推荐同一分类
-    4. 时间因素 - 早餐、午餐、晚餐不同时段推荐不同类型
-    5. 随机性 - 保持一定随机性增加趣味
-    """
+    """获取智能推荐列表"""
     cache_key = get_cache_key(current_user.id, current_user.family_id, limit, include_disliked)
 
-    # 尝试从缓存获取
     cached = get_cached_recommendations(cache_key)
     if cached:
-        return cached
+        return success_response(data=cached.model_dump(mode='json'))
 
-    # 获取家庭所有菜品
     all_dishes = db.query(Dish).filter(Dish.family_id == current_user.family_id).all()
 
     if not all_dishes:
-        return SmartRecommendationResponse(dishes=[], total=0, cached=False)
+        return success_response(data=SmartRecommendationResponse(dishes=[], total=0, cached=False).model_dump(mode='json'))
 
-    # 过滤掉不喜欢的菜品（除非明确要求包含）
     if not include_disliked:
         disliked_feedbacks = db.query(RecommendationFeedback).filter(
             RecommendationFeedback.user_id == current_user.id,
@@ -279,17 +248,14 @@ def get_smart_recommendations(
         disliked_dish_ids = {f.dish_id for f in disliked_feedbacks}
         all_dishes = [d for d in all_dishes if d.id not in disliked_dish_ids]
 
-    # 获取该用户及其家庭成员的历史记录
     user_history = db.query(OrderHistory).filter(
         OrderHistory.family_id == current_user.family_id
     ).order_by(OrderHistory.created_at.desc()).all()
 
-    # 获取所有分类
     categories = db.query(Category).filter(
         Category.family_id == current_user.family_id
     ).all()
 
-    # 计算每个菜品的推荐分数
     dish_scores: List[Tuple[Dish, float, str]] = []
     selected_categories: List[UUID] = []
 
@@ -300,20 +266,16 @@ def get_smart_recommendations(
         )
         dish_scores.append((dish, score, reason))
 
-        # 限制每个分类的推荐数量，实现多样性
         if dish.category_id and len(selected_categories) < 5:
             if dish.category_id not in selected_categories:
                 selected_categories.append(dish.category_id)
 
-    # 按分数排序
     dish_scores.sort(key=lambda x: x[1], reverse=True)
 
-    # 构建响应
     recommended_dishes = []
     seen_categories = set()
 
     for dish, score, reason in dish_scores:
-        # 限制分类多样性：同一分类最多3道菜
         if dish.category_id:
             if seen_categories.get(dish.category_id, 0) >= 3:
                 continue
@@ -342,22 +304,19 @@ def get_smart_recommendations(
         cached=False
     )
 
-    # 缓存结果
     set_cached_recommendations(cache_key, response)
 
-    return response
+    return success_response(data=response.model_dump(mode='json'))
 
 
-@router.get("/random", response_model=List[DishResponse])
+@router.get("/random")
 def get_recommendations_random(
     limit: int = Query(3, ge=1, le=10),
     category_id: Optional[UUID] = Query(None, description="指定分类"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
 ):
-    """
-    获取随机推荐（保留现有功能）
-    """
+    """获取随机推荐"""
     query = db.query(Dish).filter(Dish.family_id == current_user.family_id)
 
     if category_id:
@@ -366,36 +325,33 @@ def get_recommendations_random(
     all_dishes = query.all()
 
     if not all_dishes:
-        return []
+        return list_response(data=[], total=0)
 
     selected = random.sample(all_dishes, min(limit, len(all_dishes)))
-    return selected
+    dish_list = [DishResponse.model_validate(d).model_dump(mode='json') for d in selected]
+    return list_response(data=dish_list, total=len(dish_list))
 
 
-@router.get("/favorites", response_model=List[DishResponse])
+@router.get("/favorites")
 def get_favorites_similar(
     limit: int = Query(3, ge=1, le=10),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
 ):
-    """
-    推荐类似的收藏菜品 - 基于用户收藏的标签和分类推荐相似菜品
-    """
-    # 获取用户的收藏
+    """推荐类似的收藏菜品"""
     favorites = db.query(Favorite).filter(
         Favorite.user_id == current_user.id
     ).all()
 
     if not favorites:
-        return []
+        return list_response(data=[], total=0)
 
     favorite_dish_ids = {f.dish_id for f in favorites}
     favorite_dishes = db.query(Dish).filter(Dish.id.in_(favorite_dish_ids)).all()
 
     if not favorite_dishes:
-        return []
+        return list_response(data=[], total=0)
 
-    # 收集用户喜欢的标签和分类
     liked_tags = set()
     liked_category_ids = set()
     for dish in favorite_dishes:
@@ -404,81 +360,70 @@ def get_favorites_similar(
         if dish.category_id:
             liked_category_ids.add(dish.category_id)
 
-    # 找相似的菜品（未收藏的）
     similar_dishes = db.query(Dish).filter(
         Dish.family_id == current_user.family_id,
         Dish.id.notin_(favorite_dish_ids)
     ).all()
 
-    # 计算相似度分数
     dish_similarity = []
     for dish in similar_dishes:
         score = 0
-        # 标签匹配
         if dish.tags:
             matching_tags = set(dish.tags) & liked_tags
             score += len(matching_tags) * 2
-        # 分类匹配
         if dish.category_id in liked_category_ids:
             score += 5
-        # 高评分加成
         if dish.rating >= 4:
             score += 2
 
         if score > 0:
             dish_similarity.append((dish, score))
 
-    # 按相似度排序
     dish_similarity.sort(key=lambda x: x[1], reverse=True)
 
-    # 随机选择（从高分中随机）
     top_dishes = [d for d, s in dish_similarity[:limit * 2]]
     if len(top_dishes) <= limit:
-        return top_dishes
+        dish_list = [DishResponse.model_validate(d).model_dump(mode='json') for d in top_dishes]
+        return list_response(data=dish_list, total=len(dish_list))
 
-    return random.sample(top_dishes, limit)
+    selected = random.sample(top_dishes, limit)
+    dish_list = [DishResponse.model_validate(d).model_dump(mode='json') for d in selected]
+    return list_response(data=dish_list, total=len(dish_list))
 
 
-@router.post("/feedback", response_model=RecommendationFeedbackResponse)
+@router.post("/feedback")
 def submit_feedback(
     feedback_data: RecommendationFeedbackCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
 ):
-    """
-    用户反馈（喜欢/不喜欢某推荐）
-
-    - dish_id: 菜品ID
-    - feedback: 'like' 或 'dislike'
-    """
+    """用户反馈（喜欢/不喜欢某推荐）"""
     if feedback_data.feedback not in ("like", "dislike"):
-        from fastapi import HTTPException
-        raise HTTPException(status_code=400, detail="feedback 必须是 'like' 或 'dislike'")
+        return error_response(message="feedback 必须是 'like' 或 'dislike'", code=status.HTTP_400_BAD_REQUEST)
 
-    # 验证菜品是否存在且属于同一家庭
     dish = db.query(Dish).filter(
         Dish.id == feedback_data.dish_id,
         Dish.family_id == current_user.family_id
     ).first()
 
     if not dish:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail="菜品不存在")
+        return error_response(message="菜品不存在", code=status.HTTP_404_NOT_FOUND)
 
-    # 检查是否已有反馈
     existing = db.query(RecommendationFeedback).filter(
         RecommendationFeedback.user_id == current_user.id,
         RecommendationFeedback.dish_id == feedback_data.dish_id
     ).first()
 
     if existing:
-        # 更新现有反馈
         existing.feedback = feedback_data.feedback
         db.commit()
         db.refresh(existing)
-        return existing
+        clear_user_cache(current_user.id, current_user.family_id)
+        return success_response(
+            data=RecommendationFeedbackResponse.model_validate(existing).model_dump(mode='json'),
+            message="反馈已更新"
+        )
 
-    # 创建新反馈
     new_feedback = RecommendationFeedback(
         user_id=current_user.id,
         dish_id=feedback_data.dish_id,
@@ -488,19 +433,16 @@ def submit_feedback(
     db.commit()
     db.refresh(new_feedback)
 
-    # 清除相关缓存
     clear_user_cache(current_user.id, current_user.family_id)
 
-    return new_feedback
+    return success_response(
+        data=RecommendationFeedbackResponse.model_validate(new_feedback).model_dump(mode='json'),
+        message="反馈已提交"
+    )
 
 
 def clear_user_cache(user_id: UUID, family_id: UUID):
     """清除用户相关的推荐缓存"""
-    keys_to_delete = []
-    for key in recommendation_cache:
-        cached_data, _ = recommendation_cache[key]
-        # 这里简单处理，实际可以存储更多信息来精确清除
-        # 目前采用全量清除的方式
     recommendation_cache.clear()
 
 
@@ -509,10 +451,7 @@ def get_recommendation_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_family)
 ):
-    """
-    获取推荐统计数据（用于调试和分析）
-    """
-    # 获取用户反馈统计
+    """获取推荐统计数据"""
     feedback_stats = db.query(
         RecommendationFeedback.feedback,
         func.count(RecommendationFeedback.id)
@@ -525,17 +464,17 @@ def get_recommendation_stats(
         if feedback in feedback_count:
             feedback_count[feedback] = count
 
-    # 获取用户的推荐历史（被推荐过的菜品）
-    # 基于 OrderHistory 中最近7天有订单的菜品视为被推荐过
     recent_orders = db.query(OrderHistory.dish_id).filter(
         OrderHistory.user_id == current_user.id,
         OrderHistory.created_at >= datetime.now() - timedelta(days=7)
     ).distinct().count()
 
-    return {
+    data = {
         "feedback_likes": feedback_count["like"],
         "feedback_dislikes": feedback_count["dislike"],
         "recommended_dishes_7d": recent_orders,
         "current_time_period": get_current_time_period(),
         "cache_size": len(recommendation_cache)
     }
+
+    return success_response(data=data)

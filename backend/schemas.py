@@ -430,3 +430,59 @@ class CategoryAnalysisResponse(BaseModel):
     """分类分析响应"""
     categories: List[CategoryStatItem] = []
     total: int
+
+
+# ============ Order Schemas ============
+
+class OrderCreate(BaseModel):
+    dish_id: UUID
+    notes: Optional[str] = None  # 点餐备注
+
+
+class OrderStatusUpdate(BaseModel):
+    status: str  # "pending", "cooking", "completed"
+
+
+class OrderResponse(BaseModel):
+    id: UUID
+    user_id: UUID
+    dish_id: UUID
+    status: str
+    notes: Optional[str] = None
+    created_at: datetime
+    cooked_at: Optional[datetime] = None
+    dish: Optional[DishResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
+# ============ 统一响应模型 ============
+
+from typing import Generic, TypeVar, Optional, Any
+
+T = TypeVar("T")
+
+
+class ApiResponse(BaseModel, Generic[T]):
+    """统一API响应模型"""
+    code: int = 200
+    message: str = "success"
+    data: Optional[T] = None
+
+
+class ApiListResponse(BaseModel, Generic[T]):
+    """统一列表响应模型（带分页）"""
+    code: int = 200
+    message: str = "success"
+    data: List[T] = []
+    total: int = 0
+    page: int = 1
+    page_size: int = 20
+
+
+class ErrorResponse(BaseModel):
+    """统一错误响应模型"""
+    code: int
+    message: str
+    data: Optional[Any] = None
