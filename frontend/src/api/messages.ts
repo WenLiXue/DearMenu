@@ -7,24 +7,24 @@ const getAuthHeaders = () => {
 };
 
 export const getConversations = async (): Promise<Conversation[]> => {
-  const response = await api.get<Conversation[]>('/messages/conversations', { headers: getAuthHeaders() });
-  return response.data;
+  const conversations = await api.get<Conversation[]>('/messages/conversations', { headers: getAuthHeaders() });
+  return conversations;
 };
 
 export const getConversation = async (userId: string, limit = 50, offset = 0): Promise<Message[]> => {
-  const response = await api.get<Message[]>('/messages', {
+  const messages = await api.get<Message[]>('/messages', {
     headers: getAuthHeaders(),
     params: { conversation_with: userId, limit, offset }
   });
-  return response.data;
+  return messages;
 };
 
 export const sendMessage = async (data: {
   receiver_id: string;
   content: string;
 }): Promise<Message> => {
-  const response = await api.post<Message>('/messages', data, { headers: getAuthHeaders() });
-  return response.data;
+  const message = await api.post<Message>('/messages', data, { headers: getAuthHeaders() });
+  return message;
 };
 
 export const markMessageAsRead = async (messageId: string): Promise<void> => {
@@ -32,6 +32,6 @@ export const markMessageAsRead = async (messageId: string): Promise<void> => {
 };
 
 export const getUnreadCount = async (): Promise<number> => {
-  const response = await api.get<{ unread_count: number }>('/messages/unread-count', { headers: getAuthHeaders() });
-  return response.data.unread_count;
+  const data = await api.get<{ unread_count: number }>('/messages/unread-count', { headers: getAuthHeaders() });
+  return data.unread_count;
 };

@@ -13,6 +13,7 @@ import Favorites from './pages/Favorites';
 import History from './pages/History';
 import RandomPick from './pages/RandomPick';
 import Husband from './pages/HusbandPage/Husband';
+import HusbandTasks from './pages/HusbandPage/HusbandTasks';
 import HusbandHistory from './pages/HusbandPage/HusbandHistory';
 import Dashboard from './pages/admin/Dashboard';
 import DishManage from './pages/admin/DishManage';
@@ -23,6 +24,8 @@ import Settings from './pages/admin/Settings';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Chat from './pages/Chat';
+import Orders from './pages/Orders';
+import Profile from './pages/Profile';
 import AuthGuard from './components/AuthGuard';
 
 function App() {
@@ -56,9 +59,19 @@ function App() {
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/chat/:userId" element={<Chat />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
 
             {/* 老公端路由 */}
+            <Route
+              path="/husband/tasks"
+              element={
+                <AuthGuard allowedRoles={['husband']}>
+                  <HusbandTasks />
+                </AuthGuard>
+              }
+            />
             <Route
               path="/husband"
               element={

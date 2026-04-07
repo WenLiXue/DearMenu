@@ -1,45 +1,294 @@
+/* Auth 认证页面 v3.0 - 简约、克制、有仪式感 */
+
+/* ==================== 登录页 ==================== */
+
+.auth-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  padding: var(--space-xl);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl) var(--space-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.auth-logo {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--space-sm);
+  letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+/* 表单 */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.auth-input-wrapper {
+  position: relative;
+}
+
+.auth-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+  display: block;
+}
+
 .auth-input {
-  border-radius: 12px;
-  padding: 12px 14px;
-  border: 1px solid #EEE;
-  transition: all 0.2s ease;
+  width: 100%;
+  background: var(--bg-input) !important;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 14px 16px !important;
+  font-size: 16px !important;
+  color: var(--text-primary) !important;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .auth-input:focus {
-  border-color: #FF6B6B;
-  box-shadow: 0 0 0 2px rgba(255,107,107,0.1);
+  box-shadow: 0 0 0 2px rgba(240, 101, 101, 0.15) !important;
 }
 
+.auth-input::placeholder {
+  color: var(--text-placeholder) !important;
+}
+
+/* 主按钮 */
 .auth-btn-primary {
-  margin-top: 16px;
-  border-radius: 24px;
+  width: 100%;
+  margin-top: var(--space-md);
+  border-radius: var(--radius-md) !important;
   height: 48px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
-  border: none;
-  box-shadow: 0 4px 16px rgba(255,107,107,0.3);
-  transition: all 0.2s ease;
+  background: var(--primary-color) !important;
+  color: #FFF !important;
+  border: none !important;
+  box-shadow: var(--shadow-primary);
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .auth-btn-primary:active {
   transform: scale(0.98);
-  box-shadow: 0 2px 8px rgba(255,107,107,0.3);
+  box-shadow: 0 2px 8px rgba(240, 101, 101, 0.25);
 }
 
+/* 次按钮（注册页） */
 .auth-btn-secondary {
-  margin-top: 16px;
-  border-radius: 24px;
+  width: 100%;
+  margin-top: var(--space-md);
+  border-radius: var(--radius-md) !important;
   height: 48px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%);
-  border: none;
-  box-shadow: 0 4px 16px rgba(78,205,196,0.3);
-  transition: all 0.2s ease;
+  background: var(--teal-color) !important;
+  color: #FFF !important;
+  border: none !important;
+  box-shadow: var(--shadow-teal);
 }
 
-.auth-btn-secondary:active {
-  transform: scale(0.98);
-  box-shadow: 0 2px 8px rgba(78,205,196,0.3);
+/* 链接文字 */
+.auth-link {
+  text-align: center;
+  margin-top: var(--space-xl);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.auth-link-text {
+  color: var(--primary-color);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.auth-link-text:active {
+  opacity: 0.7;
+}
+
+/* ==================== 注册页 ==================== */
+
+.register-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg-page);
+  padding: var(--space-xl);
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+  padding-top: var(--space-xl);
+}
+
+.register-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.register-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.register-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-xl);
+}
+
+/* 步骤指示器 */
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-2xl);
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-light);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.step-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: var(--primary-color);
+}
+
+/* 角色选择 */
+.role-selection {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.role-card {
+  background: var(--bg-input);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  border: 2px solid transparent;
+}
+
+.role-card:active {
+  transform: scale(0.96);
+}
+
+.role-card.selected {
+  border-color: var(--primary-color);
+  background: rgba(240, 101, 101, 0.05);
+}
+
+.role-icon {
+  font-size: 40px;
+  margin-bottom: var(--space-md);
+}
+
+.role-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.role-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* 家庭选项 */
+.family-option {
+  margin-bottom: var(--space-lg);
+}
+
+.family-option-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+  display: block;
+}
+
+.family-segmented {
+  width: 100%;
+  margin-bottom: var(--space-lg);
+}
+
+/* ==================== 错误提示 ==================== */
+
+.auth-error {
+  background: rgba(232, 90, 90, 0.08);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.auth-error-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.auth-error-text {
+  font-size: 14px;
+  color: var(--accent-danger);
+}
+
+/* ==================== 分割线 ==================== */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+}
+
+.auth-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-light);
+}
+
+.auth-divider-text {
+  font-size: 12px;
+  color: var(--text-placeholder);
 }

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Category } from '../types';
 import * as api from '../api';
+import { getErrorMessage } from '../utils/error';
 
 interface CategoryState {
   categories: Category[];
@@ -23,7 +24,7 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
       const categories = await api.getCategories();
       set({ categories, isLoading: false });
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '获取分类失败', isLoading: false });
+      set({ error: getErrorMessage(error, '获取分类失败'), isLoading: false });
     }
   },
 
@@ -36,7 +37,7 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '创建分类失败', isLoading: false });
+      set({ error: getErrorMessage(error, '创建分类失败'), isLoading: false });
       throw error;
     }
   },
@@ -50,7 +51,7 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '更新分类失败', isLoading: false });
+      set({ error: getErrorMessage(error, '更新分类失败'), isLoading: false });
       throw error;
     }
   },
@@ -64,7 +65,7 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '删除分类失败', isLoading: false });
+      set({ error: getErrorMessage(error, '删除分类失败'), isLoading: false });
       throw error;
     }
   },

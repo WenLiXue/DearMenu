@@ -2,23 +2,24 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { TabBar } from 'antd-mobile';
 import NotificationBell from './NotificationBell';
 import './Layout.css';
+import { useAuthStore } from '../stores/authStore';
 
-const EXCLUDE_TABS = ['/login', '/register', '/husband', '/husband/history', '/messages', '/chat'];
+const EXCLUDE_TABS = ['/login', '/register', '/husband', '/husband/history', '/messages', '/chat', '/random', '/notifications'];
 
-const tabs = [
+const allTabs = [
   { key: '/home', title: '首页', icon: '🏠' },
-  { key: '/dishes', title: '点菜', icon: '🍽️' },
-  { key: '/favorites', title: '收藏', icon: '💕' },
-  { key: '/history', title: '历史', icon: '📜' },
-  { key: '/random', title: '随机', icon: '🎲' },
-  { key: '/messages', title: '消息', icon: '💬' },
-  { key: '/notifications', title: '通知', icon: '🔔' },
-  { key: '/husband', title: '老公', icon: '👨‍🍳' },
+  { key: '/dishes', title: '点餐', icon: '🍽️' },
+  { key: '/favorites', title: '收藏', icon: '❤️' },
+  { key: '/profile', title: '我的', icon: '👤' },
 ];
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const role = useAuthStore((state) => state.role);
+
+  // TabBar 固定显示 4 个标签，不再根据角色过滤
+  const tabs = allTabs;
 
   if (EXCLUDE_TABS.includes(location.pathname)) {
     return <Outlet />;

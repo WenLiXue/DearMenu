@@ -1,18 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NavBar, Card, Button, Toast } from 'antd-mobile';
+import { NavBar, Button, Toast } from 'antd-mobile';
 import { useAuthStore } from '../stores/authStore';
 import { useDishStore } from '../stores/dishStore';
 import { generateInviteCode } from '../api';
 import './Home.css';
-
-function InteractiveCard({ onClick, children, style }: { onClick?: () => void; children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <div className="interactive-card" onClick={onClick} style={style}>
-      {children}
-    </div>
-  );
-}
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -25,26 +17,37 @@ function getGreeting() {
   return { text: '夜深了', icon: '🌙' };
 }
 
-function getRecommendReason(categoryName: string | undefined) {
-  const reasons = [
-    '因为你今天想吃清淡的',
-    '因为你最近工作辛苦啦',
-    '因为你值得吃点好的',
-    '因为你今天表现很棒',
-    '因为你值得美味的一餐',
+function getDailyQuote() {
+  const quotes = [
+    '想吃点什么让人开心的 💕',
+    '今天也要好好吃饭哦 ✨',
+    '生活不止眼前的忙碌，还有美食 🍽️',
+    '好好吃饭，是对生活最好的尊重 💕',
+    '无论多忙，别忘了善待自己的胃 ✨',
   ];
-  if (!categoryName) return reasons[Math.floor(Math.random() * reasons.length)];
-  return `因为你今天想吃${categoryName}味的~`;
+  return quotes[Math.floor(Math.random() * quotes.length)];
+}
+
+function getRecommendReason() {
+  const reasons = [
+    '想吃点让人开心的',
+    '今天值得一顿好的',
+    '吃点喜欢的犒劳自己',
+    '美味，是最好的治愈',
+    '今天也要元气满满',
+  ];
+  return reasons[Math.floor(Math.random() * reasons.length)];
 }
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user, logout, familyId } = useAuthStore();
+  const { user, familyId } = useAuthStore();
   const { fetchRandomDish, randomDish } = useDishStore();
   const [animateCard, setAnimateCard] = useState(false);
   const [inviteCode, setInviteCode] = useState<string>(familyId || '');
 
   const greeting = getGreeting();
+  const dailyQuote = getDailyQuote();
 
   useEffect(() => {
     if (familyId) {
@@ -52,10 +55,14 @@ export default function Home() {
     }
   }, [familyId]);
 
+  useEffect(() => {
+    fetchRandomDish();
+  }, []);
+
   const handleCopyInviteCode = () => {
     if (inviteCode) {
       navigator.clipboard.writeText(inviteCode);
-      Toast.show({ content: '邀请码已复制~', icon: 'success' });
+      Toast.show({ content: '邀请码已复制', icon: 'success' });
     }
   };
 
@@ -63,15 +70,11 @@ export default function Home() {
     try {
       const result = await generateInviteCode();
       setInviteCode(result.invite_code);
-      Toast.show({ content: '邀请码已重新生成~', icon: 'success' });
+      Toast.show({ content: '邀请码已重新生成', icon: 'success' });
     } catch (error: any) {
-      Toast.show({ content: error.message || '生成邀请码失败', icon: 'fail' });
+      Toast.show({ content: error.message || '生成失败', icon: 'fail' });
     }
   };
-
-  useEffect(() => {
-    fetchRandomDish();
-  }, []);
 
   const handleRandomDecide = () => {
     setAnimateCard(true);
@@ -86,105 +89,33 @@ export default function Home() {
       <NavBar
         back={null}
         right={
-          <span onClick={() => { logout(); navigate('/login'); }} style={{ color: '#FFF', cursor: 'pointer', fontSize: '13px' }}>
-            退出
+          <span
+            onClick={() => navigate('/profile')}
+            style={{ color: 'var(--text-primary)', cursor: 'pointer', fontSize: '15px' }}
+          >
+            👤
           </span>
         }
-        style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)', color: '#FFF' }}
+        style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-light)' }}
       >
-        你的小菜单
+        今晚吃点什么
       </NavBar>
 
       <div className="page-content home-content">
+        {/* 欢迎区域 */}
         <div className="welcome-section">
           <div className="greeting-row">
             <span className="greeting-icon">{greeting.icon}</span>
             <span className="greeting-text">{greeting.text}，{user?.username}</span>
           </div>
-          <h1 className="main-title">今天吃什么呀？</h1>
         </div>
 
-        {/* 邀请码区域 - 仅 wife 角色显示 */}
-        {user?.role === 'wife' && (
-          <Card style={{ marginBottom: '16px', borderRadius: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>家庭邀请码</div>
-                <div style={{ fontSize: '18px', fontWeight: 600, color: '#FF6B6B', fontFamily: 'monospace' }}>
-                  {inviteCode || '加载中...'}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <Button size="small" color="primary" onClick={handleCopyInviteCode}>
-                  复制
-                </Button>
-                <Button size="small" color="danger" onClick={handleRegenerateCode}>
-                  重新生成
-                </Button>
-              </div>
-            </div>
-            <div style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
-              老公可以通过这个邀请码加入家庭~
-            </div>
-          </Card>
-        )}
-
-        <div className="card-list">
-          <InteractiveCard onClick={() => navigate('/dishes')}>
-            <div className="card-inner">
-              <div style={{
-                width: '48px', height: '48px', borderRadius: '12px',
-                background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginRight: '12px', fontSize: '22px', boxShadow: '0 4px 12px rgba(255,107,107,0.3)'
-              }}>
-                🍽️
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: 0, color: '#333', fontSize: '15px', fontWeight: 600 }}>开始点菜</h3>
-                <p style={{ margin: '2px 0 0', color: '#999', fontSize: '12px' }}>看看今天有什么好吃的</p>
-              </div>
-              <span style={{ color: '#FF6B6B', fontSize: '18px' }}>›</span>
-            </div>
-          </InteractiveCard>
-
-          <InteractiveCard onClick={() => navigate('/categories')}>
-            <div className="card-inner">
-              <div style={{
-                width: '48px', height: '48px', borderRadius: '12px',
-                background: 'linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginRight: '12px', fontSize: '22px', boxShadow: '0 4px 12px rgba(78,205,196,0.3)'
-              }}>
-                📂
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: 0, color: '#333', fontSize: '15px', fontWeight: 600 }}>分类管理</h3>
-                <p style={{ margin: '2px 0 0', color: '#999', fontSize: '12px' }}>整理你喜欢的口味</p>
-              </div>
-              <span style={{ color: '#4ECDC4', fontSize: '18px' }}>›</span>
-            </div>
-          </InteractiveCard>
-
-          <InteractiveCard onClick={() => navigate('/random')} style={{ background: 'linear-gradient(135deg, #FFE66D 0%, #FFF0A0 100%)' }}>
-            <div className="card-inner">
-              <div style={{
-                width: '48px', height: '48px', borderRadius: '12px',
-                background: 'rgba(255,255,255,0.5)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginRight: '12px', fontSize: '22px'
-              }}>
-                🎲
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: 0, color: '#333', fontSize: '15px', fontWeight: 600 }}>随机决定</h3>
-                <p style={{ margin: '2px 0 0', color: '#666', fontSize: '12px' }}>纠结的时候就点我呀</p>
-              </div>
-              <span style={{ fontSize: '24px' }}>✨</span>
-            </div>
-          </InteractiveCard>
+        {/* 今日一句 */}
+        <div className="daily-quote">
+          <p className="daily-quote-text">{dailyQuote}</p>
         </div>
 
+        {/* 推荐卡片 */}
         {randomDish && (
           <div className={`random-dish-section ${animateCard ? 'fade-out' : 'fade-in'}`}>
             <div className="random-dish-header">
@@ -192,14 +123,47 @@ export default function Home() {
               <span className="random-dish-label">今日推荐</span>
             </div>
             <h3 className="random-dish-name">{randomDish.name}</h3>
-            <p className="random-dish-reason">{getRecommendReason(randomDish.category?.name)}</p>
+            <p className="random-dish-reason">{getRecommendReason()}</p>
             <Button
               size="small"
               className="reroll-btn"
               onClick={handleRandomDecide}
             >
-              🎲 换一批
+              换一批
             </Button>
+          </div>
+        )}
+
+        {/* 快捷入口 - 两列布局 */}
+        <div className="quick-actions">
+          <div className="quick-action-card" onClick={() => navigate('/dishes')}>
+            <div className="quick-action-icon">🍽️</div>
+            <h3 className="quick-action-title">点餐</h3>
+            <p className="quick-action-desc">浏览菜单</p>
+          </div>
+          <div className="quick-action-card" onClick={() => navigate('/categories')}>
+            <div className="quick-action-icon">📂</div>
+            <h3 className="quick-action-title">分类</h3>
+            <p className="quick-action-desc">整理口味</p>
+          </div>
+        </div>
+
+        {/* 邀请码区域 - 仅老婆角色显示 */}
+        {user?.role === 'wife' && (
+          <div className="invite-code-card">
+            <div className="invite-code-header">
+              <span className="invite-code-label">家庭邀请码</span>
+              <div className="invite-code-actions">
+                <Button size="small" className="invite-code-btn" onClick={handleCopyInviteCode}>
+                  复制
+                </Button>
+                <Button size="small" className="invite-code-btn-regenerate" onClick={handleRegenerateCode}>
+                  重新生成
+                </Button>
+              </div>
+            </div>
+            <p className="invite-code-value">{inviteCode || '加载中...'}</p>
+            <p className="invite-code-desc">分享给老公，加入家庭</p>
           </div>
         )}
       </div>

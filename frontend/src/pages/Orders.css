@@ -1,0 +1,165 @@
+/* Orders 点餐历史 v3.0 - 简洁、有序 */
+
+.orders-list {
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ==================== 订单卡片 ==================== */
+
+.order-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.order-card-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-lg);
+}
+
+.order-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.order-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.order-icon {
+  font-size: 20px;
+}
+
+.order-dish-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.order-status-tag {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.order-status-tag.pending {
+  background: rgba(245, 166, 35, 0.1);
+  color: var(--accent-warning);
+}
+
+.order-status-tag.cooking {
+  background: rgba(240, 101, 101, 0.1);
+  color: var(--primary-color);
+}
+
+.order-status-tag.completed {
+  background: rgba(60, 186, 178, 0.1);
+  color: var(--teal-color);
+}
+
+.order-status-tag.cancelled {
+  background: var(--bg-input);
+  color: var(--text-secondary);
+}
+
+.order-notes {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-xs);
+}
+
+.order-time {
+  font-size: 12px;
+  color: var(--text-placeholder);
+  margin: 0;
+}
+
+/* ==================== 操作按钮 ==================== */
+
+.order-actions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.order-action-btn {
+  font-size: 13px;
+  font-weight: 500;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  border: none;
+  background: transparent;
+}
+
+.order-action-btn:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.order-complete-btn {
+  background: var(--teal-color) !important;
+  color: #FFF !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.order-cancel-btn {
+  color: var(--accent-danger);
+  background: rgba(232, 90, 90, 0.08) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+/* ==================== 情侣互动 ==================== */
+
+.order-couple-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+}
+
+.couple-avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.couple-avatar-sm.wife {
+  background: var(--primary-color);
+}
+
+.couple-avatar-sm.husband {
+  background: var(--teal-color);
+}
+
+.couple-order-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.couple-order-text strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}

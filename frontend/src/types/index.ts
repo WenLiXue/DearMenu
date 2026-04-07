@@ -79,3 +79,31 @@ export interface Conversation {
   last_message: Message | null;
   unread_count: number;
 }
+
+// 订单状态
+export type OrderStatus = 'pending' | 'cooking' | 'completed' | 'cancelled';
+
+// 订单
+export interface Order {
+  id: string;
+  user_id: string;
+  family_id: string;
+  dish_id: string;
+  status: OrderStatus;
+  notes?: string;
+  created_at: string;
+  cooked_at?: string;
+  dish?: Dish;
+  dish_name?: string;  // API may return dish_name directly
+}
+
+// 创建订单请求
+export interface OrderCreate {
+  dish_id: string;
+  notes?: string;
+}
+
+// 更新订单状态请求
+export interface OrderStatusUpdate {
+  status: OrderStatus;
+}

@@ -1,0 +1,141 @@
+/* Favorites 收藏 v3.0 - 情感化、有温度 */
+
+.favorites-list {
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ==================== 收藏卡片 v3.0 ==================== */
+
+.favorite-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.favorite-card:active {
+  transform: scale(0.98);
+}
+
+.favorite-card-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.favorite-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.favorite-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.favorite-icon {
+  font-size: 16px;
+}
+
+.favorite-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.favorite-stats {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: var(--space-xs) 0;
+}
+
+.favorite-action {
+  flex-shrink: 0;
+}
+
+/* ==================== 操作按钮 ==================== */
+
+.favorite-btn {
+  background: transparent !important;
+  color: var(--primary-color) !important;
+  border: 1.5px solid var(--primary-color) !important;
+  border-radius: var(--radius-md) !important;
+  font-size: 13px !important;
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-lg) !important;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.favorite-btn:active {
+  transform: scale(0.95);
+  background: rgba(240, 101, 101, 0.05) !important;
+}
+
+.unfavorite-btn {
+  background: rgba(240, 101, 101, 0.08) !important;
+  color: var(--primary-color) !important;
+  border: 1.5px solid var(--primary-color) !important;
+}
+
+/* ==================== 空状态 ==================== */
+
+.favorites-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3xl);
+  text-align: center;
+  min-height: 60vh;
+}
+
+.favorites-empty-icon {
+  font-size: 56px;
+  margin-bottom: var(--space-lg);
+  opacity: 0.4;
+}
+
+.favorites-empty-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.favorites-empty-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+  max-width: 240px;
+}
+
+/* ==================== 心动提示 ==================== */
+
+.heart-float {
+  position: fixed;
+  pointer-events: none;
+  font-size: 20px;
+  animation: floatUp 1s var(--ease-out) forwards;
+  z-index: 1000;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.5);
+  }
+}

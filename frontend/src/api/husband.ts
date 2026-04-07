@@ -24,13 +24,13 @@ export interface HusbandTask {
 }
 
 export const getTodayTasks = async (): Promise<HusbandTask[]> => {
-  const response = await api.get<HusbandTask[]>('/husband/tasks', { headers: getAuthHeaders() });
-  return response.data;
+  const response = await api.get<{ code: number; message: string; data: HusbandTask[]; total: number }>('/husband/tasks', { headers: getAuthHeaders() });
+  return response.data.data;
 };
 
 export const getHusbandHistory = async (): Promise<HusbandTask[]> => {
-  const response = await api.get<HusbandTask[]>('/husband/history', { headers: getAuthHeaders() });
-  return response.data;
+  const response = await api.get<{ code: number; message: string; data: HusbandTask[]; total: number }>('/husband/history', { headers: getAuthHeaders() });
+  return response.data.data;
 };
 
 export const updateTaskStatus = async (taskId: string, status: 'pending' | 'cooking' | 'completed'): Promise<void> => {

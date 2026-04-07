@@ -5,11 +5,15 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Favorites() {
   const navigate = useNavigate();
-  const { favorites, fetchFavorites, removeFavorite, isLoading } = useDishStore();
+  const { favorites, fetchFavorites, removeFavorite, isLoading, favoriteTotal, favoritePage, favoritePageSize } = useDishStore();
 
   useEffect(() => {
-    fetchFavorites();
+    fetchFavorites(1, favoritePageSize);
   }, []);
+
+  const handlePageChange = (page: number) => {
+    fetchFavorites(page, favoritePageSize);
+  };
 
   const handleRemove = async (dishId: string) => {
     Dialog.confirm({
@@ -77,6 +81,28 @@ export default function Favorites() {
           ))
         )}
       </div>
+
+      {favoriteTotal > favoritePageSize && (
+        <div style={{ padding: '16px', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>
+          <Button
+            size="small"
+            disabled={favoritePage <= 1}
+            onClick={() => handlePageChange(favoritePage - 1)}
+          >
+            上一页
+          </Button>
+          <span style={{ color: '#666', fontSize: '13px' }}>
+            第 {favoritePage} / {Math.ceil(favoriteTotal / favoritePageSize)} 页
+          </span>
+          <Button
+            size="small"
+            disabled={favoritePage >= Math.ceil(favoriteTotal / favoritePageSize)}
+            onClick={() => handlePageChange(favoritePage + 1)}
+          >
+            下一页
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

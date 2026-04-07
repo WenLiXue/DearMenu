@@ -1,9 +1,11 @@
+/* Layout 组件 v3.0 - 简洁、克制 */
+
 .layout-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
-  background: #F7F7F7;
+  background: var(--bg-page);
   overflow: hidden;
 }
 
@@ -16,33 +18,37 @@
 
 .layout-tabbar {
   flex-shrink: 0;
-  background: #FFF !important;
-  border-top: 1px solid #EEE !important;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-light) !important;
 }
 
+/* Tab 图标 */
 .tab-icon {
-  font-size: 20px;
+  font-size: 22px;
   opacity: 0.5;
-  transition: all 0.2s ease;
-}
-
-.adm-tab-bar-tab-label {
-  color: #666 !important;
-}
-
-.adm-tab-bar-tab-active .adm-tab-bar-tab-label {
-  color: #FF6B6B !important;
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .tab-icon-active {
   opacity: 1;
-  transform: scale(1.1);
 }
 
+/* Tab 文字 */
+.adm-tab-bar-tab-label {
+  color: var(--text-placeholder) !important;
+  font-size: 10px !important;
+  margin-top: 2px;
+}
+
+.adm-tab-bar-tab-active .adm-tab-bar-tab-label {
+  color: var(--primary-color) !important;
+}
+
+/* Tab 点击效果 */
 .adm-tab-bar-tab {
-  transition: all 0.2s ease;
-  font-size: 11px !important;
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .adm-tab-bar-tab:active {
@@ -51,5 +57,10 @@
 }
 
 .adm-tab-bar-tab-active {
-  color: #FF6B6B !important;
+  color: var(--primary-color) !important;
+}
+
+.adm-tab-bar-tab-active .tab-icon {
+  color: var(--primary-color);
+  opacity: 1;
 }

@@ -7,8 +7,8 @@ const getAuthHeaders = () => {
 };
 
 export const getNotifications = async (): Promise<Notification[]> => {
-  const response = await api.get<Notification[]>('/notifications', { headers: getAuthHeaders() });
-  return response.data;
+  const notifications = await api.get<Notification[]>('/notifications', { headers: getAuthHeaders() });
+  return notifications;
 };
 
 export const sendNotification = async (data: {
@@ -17,8 +17,8 @@ export const sendNotification = async (data: {
   title: string;
   content?: string;
 }): Promise<Notification> => {
-  const response = await api.post<Notification>('/notifications', data, { headers: getAuthHeaders() });
-  return response.data;
+  const notification = await api.post<Notification>('/notifications', data, { headers: getAuthHeaders() });
+  return notification;
 };
 
 export const markAsRead = async (id: string): Promise<void> => {
@@ -34,6 +34,6 @@ export const deleteNotification = async (id: string): Promise<void> => {
 };
 
 export const getUnreadCount = async (): Promise<number> => {
-  const response = await api.get<{ unread_count: number }>('/notifications/unread-count', { headers: getAuthHeaders() });
-  return response.data.unread_count;
+  const data = await api.get<{ unread_count: number }>('/notifications/unread-count', { headers: getAuthHeaders() });
+  return data.unread_count;
 };

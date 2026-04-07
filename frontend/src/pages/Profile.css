@@ -1,0 +1,225 @@
+/* Profile 我的页面 v3.0 - 简洁、有序 */
+
+.profile-content {
+  padding: var(--space-xl);
+  padding-bottom: calc(60px + env(safe-area-inset-bottom) + var(--space-lg));
+}
+
+/* ==================== 用户信息卡片 ==================== */
+
+.profile-header {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto var(--space-lg);
+  box-shadow: var(--shadow-primary);
+}
+
+.profile-avatar.husband {
+  background: var(--teal-gradient);
+  box-shadow: var(--shadow-teal);
+}
+
+.profile-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xs);
+}
+
+.profile-role {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ==================== 家庭信息 ==================== */
+
+.family-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.family-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 var(--space-md);
+}
+
+.family-code-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.family-code {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  color: var(--primary-color);
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.family-code-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+/* ==================== 历史记录入口 ==================== */
+
+.history-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-item:active {
+  background: var(--bg-input);
+}
+
+.history-item-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.history-item-icon {
+  font-size: 20px;
+}
+
+.history-item-text {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.history-item-arrow {
+  font-size: 16px;
+  color: var(--text-placeholder);
+}
+
+/* ==================== 菜单列表 ==================== */
+
+.menu-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:active {
+  background: var(--bg-input);
+}
+
+.menu-item-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.menu-item-icon {
+  font-size: 20px;
+}
+
+.menu-item-text {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.menu-item.danger .menu-item-text {
+  color: var(--accent-danger);
+}
+
+.menu-item-arrow {
+  font-size: 16px;
+  color: var(--text-placeholder);
+}
+
+/* ==================== 退出按钮 ==================== */
+
+.logout-btn {
+  width: 100%;
+  background: var(--bg-card) !important;
+  border: 1.5px solid var(--border-light) !important;
+  border-radius: var(--radius-md) !important;
+  height: 48px;
+  font-size: 16px;
+  color: var(--text-secondary) !important;
+  margin-top: var(--space-lg);
+}
+
+.logout-btn:active {
+  background: var(--bg-input) !important;
+}
+
+/* ==================== 版本信息 ==================== */
+
+.version-info {
+  text-align: center;
+  margin-top: var(--space-2xl);
+  padding-bottom: var(--space-xl);
+}
+
+.version-text {
+  font-size: 12px;
+  color: var(--text-placeholder);
+  margin: 0;
+}

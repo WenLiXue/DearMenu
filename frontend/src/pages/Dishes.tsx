@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { NavBar, Card, Button, Tag, Empty, Dialog, Toast } from 'antd-mobile';
 import { useDishStore } from '../stores/dishStore';
 import { useCategoryStore } from '../stores/categoryStore';
+import { useOrderStore } from '../stores/orderStore';
 import type { Dish } from '../types';
 import './Dishes.css';
 
 export default function Dishes() {
   const navigate = useNavigate();
-  const { dishes, fetchDishes, removeDish, addFavorite, removeFavorite, favorites, fetchFavorites, isLoading } = useDishStore();
+  const { dishes, fetchDishes, removeDish, addFavorite, removeFavorite, favorites, fetchFavorites, isLoading, dishTotal, dishPage, dishPageSize, fetchDishes: reloadDishes } = useDishStore();
   const { categories, fetchCategories } = useCategoryStore();
+  const { createOrder } = useOrderStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const tagsScrollRef = useRef<HTMLDivElement>(null);
 
@@ -19,8 +21,12 @@ export default function Dishes() {
   }, []);
 
   useEffect(() => {
-    fetchDishes(selectedCategory || undefined);
+    fetchDishes(selectedCategory || undefined, 1, dishPageSize);
   }, [selectedCategory]);
+
+  const handlePageChange = (page: number) => {
+    fetchDishes(selectedCategory || undefined, page, dishPageSize);
+  };
 
   const isFavorited = (dishId: string) => favorites.some((f) => (f.dish_id || f.id) === dishId);
 
@@ -50,6 +56,22 @@ export default function Dishes() {
           Toast.show({ content: '删除成功', icon: 'success' });
         } catch {
           Toast.show({ content: '删除失败啦', icon: 'fail' });
+        }
+      },
+    });
+  };
+
+  const handleOrder = (dish: Dish) => {
+    Dialog.confirm({
+      content: `确定要点 "${dish.name}" 吗？`,
+      confirmText: '点餐',
+      cancelText: '取消',
+      onConfirm: async () => {
+        try {
+          await createOrder({ dish_id: dish.id });
+          Toast.show({ content: '点餐成功！', icon: 'success' });
+        } catch {
+          Toast.show({ content: '点餐失败啦', icon: 'fail' });
         }
       },
     });
@@ -137,6 +159,7 @@ export default function Dishes() {
                   </div>
                 </div>
                 <div className="dish-actions">
+                  <Button size="small" color="primary" onClick={() => handleOrder(dish)} className="action-btn">点餐</Button>
                   <Button
                     size="small"
                     onClick={() => handleToggleFavorite(dish)}
@@ -152,6 +175,28 @@ export default function Dishes() {
           ))
         )}
       </div>
+
+      {dishTotal > dishPageSize && (
+        <div style={{ padding: '16px', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>
+          <Button
+            size="small"
+            disabled={dishPage <= 1}
+            onClick={() => handlePageChange(dishPage - 1)}
+          >
+            上一页
+          </Button>
+          <span style={{ color: '#666', fontSize: '13px' }}>
+            第 {dishPage} / {Math.ceil(dishTotal / dishPageSize)} 页
+          </span>
+          <Button
+            size="small"
+            disabled={dishPage >= Math.ceil(dishTotal / dishPageSize)}
+            onClick={() => handlePageChange(dishPage + 1)}
+          >
+            下一页
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

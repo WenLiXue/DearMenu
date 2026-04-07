@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Dish, Favorite, HistoryRecord } from '../types';
 import * as api from '../api';
+import { getErrorMessage } from '../utils/error';
 
 interface DishState {
   dishes: Dish[];
@@ -10,9 +11,15 @@ interface DishState {
   isLoading: boolean;
   error: string | null;
   selectedCategoryId: string | null;
+  dishTotal: number;
+  dishPage: number;
+  dishPageSize: number;
+  favoriteTotal: number;
+  favoritePage: number;
+  favoritePageSize: number;
   setSelectedCategoryId: (id: string | null) => void;
-  fetchDishes: (categoryId?: string) => Promise<void>;
-  fetchFavorites: () => Promise<void>;
+  fetchDishes: (categoryId?: string, page?: number, pageSize?: number) => Promise<void>;
+  fetchFavorites: (page?: number, pageSize?: number) => Promise<void>;
   fetchHistory: () => Promise<void>;
   fetchRandomDish: () => Promise<void>;
   addDish: (data: { name: string; category_id?: string; tags?: string[] }) => Promise<void>;
@@ -30,26 +37,32 @@ export const useDishStore = create<DishState>((set, get) => ({
   isLoading: false,
   error: null,
   selectedCategoryId: null,
+  dishTotal: 0,
+  dishPage: 1,
+  dishPageSize: 20,
+  favoriteTotal: 0,
+  favoritePage: 1,
+  favoritePageSize: 20,
 
   setSelectedCategoryId: (id) => set({ selectedCategoryId: id }),
 
-  fetchDishes: async (categoryId?: number) => {
+  fetchDishes: async (categoryId?: string, page: number = 1, pageSize: number = 20) => {
     set({ isLoading: true, error: null });
     try {
-      const dishes = await api.getDishes(categoryId);
-      set({ dishes, isLoading: false });
+      const result = await api.getDishes(categoryId, page, pageSize);
+      set({ dishes: result.dishes, dishTotal: result.total, dishPage: page, dishPageSize: pageSize, isLoading: false });
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '获取菜品失败', isLoading: false });
+      set({ error: getErrorMessage(error, '获取菜品失败'), isLoading: false });
     }
   },
 
-  fetchFavorites: async () => {
+  fetchFavorites: async (page: number = 1, pageSize: number = 20) => {
     set({ isLoading: true, error: null });
     try {
-      const favorites = await api.getFavorites();
-      set({ favorites, isLoading: false });
+      const result = await api.getFavorites(page, pageSize);
+      set({ favorites: result.dishes as unknown as Favorite[], favoriteTotal: result.total, favoritePage: page, favoritePageSize: pageSize, isLoading: false });
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '获取收藏失败', isLoading: false });
+      set({ error: getErrorMessage(error, '获取收藏失败'), isLoading: false });
     }
   },
 
@@ -59,7 +72,7 @@ export const useDishStore = create<DishState>((set, get) => ({
       const history = await api.getHistory();
       set({ history, isLoading: false });
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '获取历史失败', isLoading: false });
+      set({ error: getErrorMessage(error, '获取历史失败'), isLoading: false });
     }
   },
 
@@ -69,7 +82,7 @@ export const useDishStore = create<DishState>((set, get) => ({
       const randomDish = await api.getRandomDish();
       set({ randomDish, isLoading: false });
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '获取随机推荐失败', isLoading: false });
+      set({ error: getErrorMessage(error, '获取随机推荐失败'), isLoading: false });
     }
   },
 
@@ -82,7 +95,7 @@ export const useDishStore = create<DishState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '创建菜品失败', isLoading: false });
+      set({ error: getErrorMessage(error, '创建菜品失败'), isLoading: false });
       throw error;
     }
   },
@@ -96,7 +109,7 @@ export const useDishStore = create<DishState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '更新菜品失败', isLoading: false });
+      set({ error: getErrorMessage(error, '更新菜品失败'), isLoading: false });
       throw error;
     }
   },
@@ -110,7 +123,7 @@ export const useDishStore = create<DishState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '删除菜品失败', isLoading: false });
+      set({ error: getErrorMessage(error, '删除菜品失败'), isLoading: false });
       throw error;
     }
   },
@@ -124,7 +137,7 @@ export const useDishStore = create<DishState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '添加收藏失败', isLoading: false });
+      set({ error: getErrorMessage(error, '添加收藏失败'), isLoading: false });
       throw error;
     }
   },
@@ -138,7 +151,7 @@ export const useDishStore = create<DishState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ error: error.response?.data?.detail || '取消收藏失败', isLoading: false });
+      set({ error: getErrorMessage(error, '取消收藏失败'), isLoading: false });
       throw error;
     }
   },
