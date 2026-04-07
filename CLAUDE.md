@@ -50,6 +50,7 @@ DearMenu/
 ## 开发命令
 
 ### 前端
+
 ```bash
 cd frontend
 npm install          # 安装依赖
@@ -59,6 +60,7 @@ npm run typecheck   # TypeScript 类型检查
 ```
 
 ### 后端
+
 ```bash
 cd backend
 pip install -r requirements.txt   # 安装依赖
@@ -66,6 +68,7 @@ python main.py                    # 启动服务 (http://localhost:8000)
 ```
 
 ### 数据库 (Docker)
+
 ```bash
 docker-compose up -d    # 启动 PostgreSQL
 docker-compose down    # 停止服务
@@ -73,11 +76,11 @@ docker-compose down    # 停止服务
 
 ## 服务地址
 
-| 服务 | 地址 | 说明 |
-|------|------|------|
-| 前端 | http://localhost:3007 | React 开发服务器 |
-| 后端API | http://localhost:8000 | FastAPI 服务 |
-| API文档 | http://localhost:8000/docs | Swagger 文档 |
+| 服务    | 地址                       | 说明             |
+| ------- | -------------------------- | ---------------- |
+| 前端    | http://localhost:3000      | React 开发服务器 |
+| 后端API | http://localhost:8000      | FastAPI 服务     |
+| API文档 | http://localhost:8000/docs | Swagger 文档     |
 
 ## 技术栈
 
@@ -91,6 +94,7 @@ docker-compose down    # 停止服务
 后端采用 RESTful API 设计，所有需要认证的接口通过 `Authorization: Bearer <token>` 头部传递 JWT。
 
 主要路由前缀：
+
 - `/api/auth` - 认证
 - `/api/categories` - 分类管理
 - `/api/dishes` - 菜品管理
@@ -101,6 +105,7 @@ docker-compose down    # 停止服务
 ## 状态管理
 
 使用 Zustand 管理客户端状态：
+
 - `authStore` - 用户认证状态和 Token 管理
 - `categoryStore` - 分类数据
 - `dishStore` - 菜品数据
@@ -108,6 +113,7 @@ docker-compose down    # 停止服务
 ## 数据库
 
 PostgreSQL 数据库，表结构通过 SQLAlchemy 模型定义在后端 `models.py` 中，包括：
+
 - `users` - 用户表
 - `categories` - 分类表
 - `dishes` - 菜品表
