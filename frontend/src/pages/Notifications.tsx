@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { List, SwipeAction, Badge, Empty } from 'antd-mobile';
 import { NavBar } from 'antd-mobile';
+import { useNavigate } from 'react-router-dom';
 import { useNotificationStore } from '../stores/notificationStore';
 
 const getNotificationIcon = (type: string) => {
@@ -13,6 +14,7 @@ const getNotificationIcon = (type: string) => {
 };
 
 export default function Notifications() {
+  const navigate = useNavigate();
   const {
     notifications,
     fetchNotifications,
@@ -28,6 +30,8 @@ export default function Notifications() {
   return (
     <div className="page-container">
       <NavBar
+        back="返回"
+        onBack={() => navigate('/home')}
         right={
           <span
             onClick={markAllAsRead}
@@ -36,6 +40,7 @@ export default function Notifications() {
             全部已读
           </span>
         }
+        style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)', color: '#FFF' }}
       >
         通知
       </NavBar>

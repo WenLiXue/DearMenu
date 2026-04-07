@@ -118,3 +118,16 @@
   transform: scale(0.92);
   opacity: 0.9;
 }
+
+/* 收藏按钮 - 已收藏状态 */
+.dish-actions .action-btn-favorited.adm-button {
+  background: #FFEBEB !important;
+  border: 1px solid #FF6B6B !important;
+  color: #FF6B6B !important;
+}
+
+.dish-actions .adm-button.adm-button-small.action-btn-favorited {
+  background: #FFEBEB !important;
+  border: 1px solid #FF6B6B !important;
+  color: #FF6B6B !important;
+}

@@ -115,7 +115,7 @@ export const useDishStore = create<DishState>((set, get) => ({
     }
   },
 
-  addFavorite: async (dishId: number) => {
+  addFavorite: async (dishId: string) => {
     set({ isLoading: true, error: null });
     try {
       const favorite = await api.addFavorite(dishId);
@@ -129,7 +129,7 @@ export const useDishStore = create<DishState>((set, get) => ({
     }
   },
 
-  removeFavorite: async (dishId: number) => {
+  removeFavorite: async (dishId: string) => {
     set({ isLoading: true, error: null });
     try {
       await api.removeFavorite(dishId);

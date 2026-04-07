@@ -22,7 +22,7 @@ export default function Dishes() {
     fetchDishes(selectedCategory || undefined);
   }, [selectedCategory]);
 
-  const isFavorited = (dishId: string) => favorites.some((f) => f.dish_id === dishId);
+  const isFavorited = (dishId: string) => favorites.some((f) => (f.dish_id || f.id) === dishId);
 
   const handleToggleFavorite = async (dish: Dish) => {
     try {
@@ -129,19 +129,18 @@ export default function Dishes() {
                   </div>
                   <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                     {dish.category && (
-                      <Tag color="success" size="small">{dish.category.icon} {dish.category.name}</Tag>
+                      <Tag color="success">{dish.category.icon} {dish.category.name}</Tag>
                     )}
                     {dish.tags && dish.tags.slice(0, 2).map((tag) => (
-                      <Tag key={tag} color="warning" size="small">{tag}</Tag>
+                      <Tag key={tag} color="warning">{tag}</Tag>
                     ))}
                   </div>
                 </div>
                 <div className="dish-actions">
                   <Button
                     size="small"
-                    color={isFavorited(dish.id) ? 'primary' : 'default'}
                     onClick={() => handleToggleFavorite(dish)}
-                    className="action-btn"
+                    className={isFavorited(dish.id) ? 'action-btn-favorited' : 'action-btn'}
                   >
                     {isFavorited(dish.id) ? '❤️' : '🤍'}
                   </Button>

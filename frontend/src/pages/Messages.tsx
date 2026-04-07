@@ -41,7 +41,13 @@ export default function Messages() {
 
   return (
     <div className="page-container">
-      <NavBar>消息</NavBar>
+      <NavBar
+        back="返回"
+        onBack={() => navigate('/home')}
+        style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)', color: '#FFF' }}
+      >
+        消息
+      </NavBar>
 
       {conversations.length === 0 ? (
         <Empty description="暂无消息" />

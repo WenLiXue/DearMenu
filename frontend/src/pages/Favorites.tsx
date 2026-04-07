@@ -52,26 +52,23 @@ export default function Favorites() {
               <div style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: '0 0 4px', color: '#2C3E50' }}>{favorite.dish?.name || `菜品 #${favorite.dish_id}`}</h3>
+                    <h3 style={{ margin: '0 0 4px', color: '#2C3E50' }}>{favorite.name || `菜品 #${favorite.id}`}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                       <div style={{ display: 'flex', gap: '2px' }}>
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <span key={star} style={{ color: favorite.dish && star <= favorite.dish.rating ? '#FFE66D' : '#ddd', fontSize: '14px' }}>
+                          <span key={star} style={{ color: star <= favorite.rating ? '#FFE66D' : '#ddd', fontSize: '14px' }}>
                             ★
                           </span>
                         ))}
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {favorite.dish?.category && (
-                        <Tag color="success" size="small">{favorite.dish.category.icon} {favorite.dish.category.name}</Tag>
-                      )}
-                      {favorite.dish?.tags && favorite.dish.tags.slice(0, 2).map((tag) => (
-                        <Tag key={tag} color="warning" size="small">{tag}</Tag>
+                      {favorite.tags && favorite.tags.slice(0, 2).map((tag) => (
+                        <Tag key={tag} color="warning">{tag}</Tag>
                       ))}
                     </div>
                   </div>
-                  <Button size="small" color="danger" onClick={() => handleRemove(favorite.dish_id)}>
+                  <Button size="small" color="danger" onClick={() => handleRemove(favorite.id)}>
                     取消收藏
                   </Button>
                 </div>

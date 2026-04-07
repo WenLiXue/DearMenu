@@ -1,0 +1,144 @@
+/* DearMenu 主题变量 */
+:root {
+  /* 主色调 */
+  --primary-gradient: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  --primary-color: #FF6B6B;
+  --primary-light: #FF8E8E;
+
+  /* 辅助色 */
+  --teal-gradient: linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%);
+  --yellow-gradient: linear-gradient(135deg, #FFE66D 0%, #FFF0A0 100%);
+  --green-color: #4ECDC4;
+  --yellow-color: #FFE66D;
+
+  /* 圆角 */
+  --card-radius: 12px;
+  --btn-radius: 8px;
+  --tag-radius: 4px;
+
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow-primary: 0 4px 12px rgba(255,107,107,0.3);
+  --shadow-teal: 0 4px 12px rgba(78,205,196,0.3);
+
+  /* 文字 */
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-hint: #999;
+
+  /* 背景 */
+  --bg-page: #F7F8FA;
+  --bg-card: #FFF;
+}
+
+/* 公共样式类 */
+.nav-bar-primary {
+  background: var(--primary-gradient) !important;
+  color: #FFF !important;
+}
+
+.card {
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-primary {
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-primary);
+}
+
+.interactive-card {
+  background: var(--bg-card);
+  border-radius: var(--card-radius);
+  padding: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.interactive-card:active {
+  transform: scale(0.98);
+}
+
+/* 按钮样式 */
+.btn-primary-gradient {
+  background: var(--primary-gradient) !important;
+  border: none !important;
+  border-radius: var(--btn-radius) !important;
+}
+
+/* Ant Design Mobile Button 统一样式 */
+.adm-button {
+  border-radius: var(--btn-radius) !important;
+}
+
+.adm-button-small {
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+}
+
+.adm-button-medium {
+  font-size: 14px !important;
+}
+
+/* NavBar 统一样式 */
+.nav-bar-themed {
+  background: var(--primary-gradient) !important;
+  color: #FFF !important;
+}
+
+.nav-bar-themed .adm-nav-bar-back-arrow,
+.nav-bar-themed .adm-nav-bar-right {
+  color: #FFF !important;
+}
+
+/* TabBar 样式 */
+.adm-tab-bar {
+  --background-color: #FFF;
+  --border-top: 1px solid #f0f0f0;
+}
+
+.adm-tab-bar-item {
+  --icon-color: var(--text-hint);
+}
+
+.adm-tab-bar-item-active {
+  --icon-color: var(--primary-color);
+}
+
+/* 标签样式 */
+.tag {
+  border-radius: var(--tag-radius);
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+/* Ant Design Mobile Tag 样式修复 */
+.adm-tag {
+  font-size: 12px !important;
+  padding: 2px 6px !important;
+}
+
+.adm-tag-size-small {
+  font-size: 11px !important;
+  padding: 1px 4px !important;
+}
+
+/* 页面容器 */
+.page-container {
+  min-height: 100vh;
+  background: var(--bg-page);
+}
+
+.page-content {
+  padding: 12px 16px;
+  padding-bottom: 80px;
+}
+
+/* 列表 */
+.list-item {
+  border-radius: var(--card-radius);
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}

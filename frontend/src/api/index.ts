@@ -88,12 +88,12 @@ export const getFavorites = async (): Promise<Favorite[]> => {
   return response.data;
 };
 
-export const addFavorite = async (dishId: number): Promise<Favorite> => {
+export const addFavorite = async (dishId: string): Promise<Favorite> => {
   const response = await api.post<Favorite>(`/favorites/${dishId}`, {}, { headers: getAuthHeaders() });
   return response.data;
 };
 
-export const removeFavorite = async (dishId: number): Promise<void> => {
+export const removeFavorite = async (dishId: string): Promise<void> => {
   await api.delete(`/favorites/${dishId}`, { headers: getAuthHeaders() });
 };
 

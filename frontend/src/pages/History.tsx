@@ -46,10 +46,10 @@ export default function History() {
                       </div>
                     </div>
                     {record.dish?.category && (
-                      <Tag color="success" size="small">{record.dish.category.icon} {record.dish.category.name}</Tag>
+                      <Tag color="success">{record.dish.category.icon} {record.dish.category.name}</Tag>
                     )}
                     {record.dish?.tags && record.dish.tags.slice(0, 2).map((tag) => (
-                      <Tag key={tag} color="warning" size="small" style={{ marginLeft: '4px' }}>{tag}</Tag>
+                      <Tag key={tag} color="warning" style={{ marginLeft: '4px' }}>{tag}</Tag>
                     ))}
                   </div>
                   <span style={{ color: '#999', fontSize: '12px' }}>

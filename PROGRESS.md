@@ -571,6 +571,34 @@ npm run dev
 - 热门菜品按点餐次数排序
 - 分类分析展示各分类的菜品数、点餐次数、收藏数
 
+## v2.6 Bug修复与UI优化（2026-04-07）
+
+### 修复内容
+
+| 问题 | 修复文件 | 说明 |
+|------|----------|------|
+| Tag组件size属性错误 | 多个页面 | Ant Design Mobile Tag不支持size属性，已移除 |
+| 收藏状态判断错误 | Dishes.tsx | isFavorited函数比较f.dish_id但API返回的是菜品对象 |
+| 收藏按钮样式不生效 | Dishes.tsx, Dishes.css | 添加.action-btn-favorited样式类 |
+| 收藏页面显示undefined | Favorites.tsx | API返回菜品对象而非{dish:{...}}结构 |
+| Messages页面无返回按钮 | Messages.tsx | NavBar添加back和onBack属性 |
+| Notifications页面无返回按钮 | Notifications.tsx | NavBar添加back和onBack属性 |
+| TabBar双重emoji | Layout.tsx | 移除getTabTitle中的额外emoji |
+
+### 新增文件
+
+| 文件 | 说明 |
+|------|------|
+| frontend/src/theme.css | CSS变量和公共样式类 |
+
+### 样式统一
+
+- 创建theme.css统一管理CSS变量
+- 主色调：#FF6B6B 珊瑚红
+- 圆角：12px卡片、8px按钮、4px标签
+- 阴影：统一--shadow-sm、--shadow-md、--shadow-primary
+- Ant Design Mobile组件样式修复
+
 ---
 
 ## 八、团队成员
@@ -584,8 +612,8 @@ npm run dev
 
 ---
 
-*文档更新时间: 2026-04-03*
-*当前版本: v2.5*
+*文档更新时间: 2026-04-07*
+*当前版本: v2.6*
 
 ## ⚠️ 数据库迁移说明
 

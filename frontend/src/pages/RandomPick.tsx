@@ -102,7 +102,7 @@ export default function RandomPick() {
               {randomDish.tags && randomDish.tags.length > 0 && (
                 <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', marginBottom: '12px', flexWrap: 'wrap' }}>
                   {randomDish.tags.map((tag) => (
-                    <Tag key={tag} color="primary" size="small" style={{ borderRadius: '10px' }}>{tag}</Tag>
+                    <Tag key={tag} color="primary" style={{ borderRadius: '10px' }}>{tag}</Tag>
                   ))}
                 </div>
               )}

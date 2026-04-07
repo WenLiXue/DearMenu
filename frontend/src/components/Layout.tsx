@@ -27,14 +27,7 @@ export default function Layout() {
   const getTabTitle = (key: string) => {
     const tab = tabs.find(t => t.key === key);
     if (!tab) return '';
-    switch (key) {
-      case '/favorites':
-        return '收藏 💕';
-      case '/history':
-        return '历史 📜';
-      default:
-        return tab.title;
-    }
+    return tab.title;
   };
 
   return (
