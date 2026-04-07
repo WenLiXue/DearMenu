@@ -31,6 +31,14 @@ def create_category(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # 检查同家庭内是否已存在同名分类
+    existing = db.query(Category).filter(
+        Category.family_id == current_user.family_id,
+        Category.name == category_data.name
+    ).first()
+    if existing:
+        return error_response(message="该分类名称已存在", code=status.HTTP_400_BAD_REQUEST)
+
     category = Category(
         user_id=current_user.id,
         family_id=current_user.family_id,
@@ -63,8 +71,17 @@ def update_category(
     if not category:
         return error_response(message="分类不存在", code=status.HTTP_404_NOT_FOUND)
 
-    if category_data.name is not None:
+    # 检查名称是否与其他分类重复
+    if category_data.name is not None and category_data.name != category.name:
+        existing = db.query(Category).filter(
+            Category.family_id == current_user.family_id,
+            Category.name == category_data.name,
+            Category.id != category_id
+        ).first()
+        if existing:
+            return error_response(message="该分类名称已存在", code=status.HTTP_400_BAD_REQUEST)
         category.name = category_data.name
+
     if category_data.icon is not None:
         category.icon = category_data.icon
     if category_data.sort_order is not None:

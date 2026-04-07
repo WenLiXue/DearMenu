@@ -2,7 +2,7 @@ import uuid
 import enum
 import random
 import string
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, ARRAY, CheckConstraint, Enum, Text, Boolean
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, ARRAY, CheckConstraint, Enum, Text, Boolean, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -70,6 +70,10 @@ class Category(Base):
     user = relationship("User", back_populates="categories")
     family = relationship("Family")
     dishes = relationship("Dish", back_populates="category")
+
+    __table_args__ = (
+        UniqueConstraint('family_id', 'name', name='unique_category_name_per_family'),
+    )
 
 
 class Dish(Base):
