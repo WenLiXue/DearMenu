@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NavBar, Button, Toast } from 'antd-mobile';
+import { NavBar, Button } from 'antd-mobile';
 import { useAuthStore } from '../stores/authStore';
 import { useDishStore } from '../stores/dishStore';
-import { generateInviteCode } from '../api';
 import './Home.css';
 
 function getGreeting() {
@@ -41,40 +40,16 @@ function getRecommendReason() {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user, familyId } = useAuthStore();
+  const { user } = useAuthStore();
   const { fetchRandomDish, randomDish } = useDishStore();
   const [animateCard, setAnimateCard] = useState(false);
-  const [inviteCode, setInviteCode] = useState<string>(familyId || '');
 
   const greeting = getGreeting();
   const dailyQuote = getDailyQuote();
 
   useEffect(() => {
-    if (familyId) {
-      setInviteCode(familyId);
-    }
-  }, [familyId]);
-
-  useEffect(() => {
     fetchRandomDish();
   }, []);
-
-  const handleCopyInviteCode = () => {
-    if (inviteCode) {
-      navigator.clipboard.writeText(inviteCode);
-      Toast.show({ content: '邀请码已复制', icon: 'success' });
-    }
-  };
-
-  const handleRegenerateCode = async () => {
-    try {
-      const result = await generateInviteCode();
-      setInviteCode(result.invite_code);
-      Toast.show({ content: '邀请码已重新生成', icon: 'success' });
-    } catch (error: any) {
-      Toast.show({ content: error.message || '生成失败', icon: 'fail' });
-    }
-  };
 
   const handleRandomDecide = () => {
     setAnimateCard(true);
@@ -148,24 +123,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 邀请码区域 - 仅老婆角色显示 */}
-        {user?.role === 'wife' && (
-          <div className="invite-code-card">
-            <div className="invite-code-header">
-              <span className="invite-code-label">家庭邀请码</span>
-              <div className="invite-code-actions">
-                <Button size="small" className="invite-code-btn" onClick={handleCopyInviteCode}>
-                  复制
-                </Button>
-                <Button size="small" className="invite-code-btn-regenerate" onClick={handleRegenerateCode}>
-                  重新生成
-                </Button>
-              </div>
-            </div>
-            <p className="invite-code-value">{inviteCode || '加载中...'}</p>
-            <p className="invite-code-desc">分享给老公，加入家庭</p>
-          </div>
-        )}
       </div>
     </div>
   );

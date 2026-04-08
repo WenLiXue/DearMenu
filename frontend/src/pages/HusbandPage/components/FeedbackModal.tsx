@@ -17,21 +17,23 @@ export default function FeedbackModal({ visible, dishName, onNotify, onClose }: 
       className="feedback-modal"
     >
       <div className="feedback-modal-content">
-        <div className="feedback-modal-icon">🎉</div>
-        <h3 className="feedback-modal-title">完成啦！</h3>
+        <div className="feedback-modal-icon">🍱</div>
+        <h3 className="feedback-modal-title">做完了！</h3>
         <p className="feedback-modal-dish">{dishName}</p>
-        <p className="feedback-modal-tip">要不要给她发个消息？</p>
+        <p className="feedback-modal-tip">给她发个通知？</p>
         <Button
-          className="feedback-modal-btn"
+          className="feedback-modal-btn primary"
           onClick={onNotify}
+          block
         >
-          🍱 我做好啦！
+          通知她
         </Button>
         <Button
-          className="feedback-modal-close"
+          className="feedback-modal-btn secondary"
           onClick={onClose}
+          block
         >
-          先不发了
+          稍后再说
         </Button>
       </div>
     </Modal>

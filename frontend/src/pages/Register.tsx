@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input, Form, Toast, Card, Segmented } from 'antd-mobile';
+import { Button, Input, Form, Toast, Segmented } from 'antd-mobile';
 import { useAuthStore } from '../stores/authStore';
 import type { Role } from '../types';
 import './Auth.css';
@@ -16,6 +16,7 @@ export default function Register() {
   const [familyOption, setFamilyOption] = useState<'create' | 'join'>('create');
   const [familyName, setFamilyName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleNext = () => {
     if (!username || username.length < 3) {
@@ -24,6 +25,10 @@ export default function Register() {
     }
     if (password.length < 6) {
       Toast.show({ content: '密码至少要6位哦~', icon: 'fail' });
+      return;
+    }
+    if (password !== confirmPassword) {
+      Toast.show({ content: '两次输入的密码不一致哦~', icon: 'fail' });
       return;
     }
     setStep(2);
@@ -68,25 +73,10 @@ export default function Register() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%)',
-      padding: '20px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center'
-    }}>
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 style={{ color: '#FFF', fontSize: '28px', fontWeight: 'bold', margin: 0 }}>开启美食之旅</h1>
-        <p style={{ color: 'rgba(255,255,255,0.9)', marginTop: '8px', fontSize: '14px' }}>加入DearMenu，开始美味生活~</p>
-      </div>
-
-      <div style={{
-        background: '#fff',
-        borderRadius: '24px',
-        padding: '32px 24px',
-        boxShadow: '0 12px 40px rgba(78,205,196,0.25)'
-      }}>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1 className="auth-logo">DearMenu</h1>
+        <p className="auth-subtitle">开启美食之旅</p>
         {/* 步骤1: 用户名密码 */}
         {step === 1 && (
           <>
@@ -108,6 +98,15 @@ export default function Register() {
                   className="auth-input"
                 />
               </Form.Item>
+              <Form.Item>
+                <Input
+                  type="password"
+                  placeholder="确认密码"
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  className="auth-input"
+                />
+              </Form.Item>
               <Button block type="submit" color="primary" size="large" className="auth-btn-secondary">
                 下一步
               </Button>
@@ -123,41 +122,36 @@ export default function Register() {
               <p style={{ color: '#999', fontSize: '14px', marginTop: '8px' }}>告诉小Menu你是谁~</p>
             </div>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <Card
+              <div
                 onClick={() => handleRoleSelect('wife')}
+                className={`role-card ${role === 'wife' ? 'selected' : ''}`}
                 style={{
                   flex: 1,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  border: role === 'wife' ? '2px solid #FF6B6B' : '1px solid #f0f0f0',
-                  borderRadius: '16px'
+                  borderColor: role === 'wife' ? 'var(--primary-color)' : undefined
                 }}
               >
-                <div style={{ fontSize: '48px', marginBottom: '8px' }}>👰</div>
-                <div style={{ fontSize: '16px', fontWeight: 500, color: '#333' }}>老婆</div>
-                <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>负责点餐决策</div>
-              </Card>
-              <Card
+                <div className="role-icon">👰</div>
+                <div className="role-name">老婆</div>
+                <div className="role-desc">负责点餐决策</div>
+              </div>
+              <div
                 onClick={() => handleRoleSelect('husband')}
+                className={`role-card ${role === 'husband' ? 'selected' : ''}`}
                 style={{
                   flex: 1,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  border: role === 'husband' ? '2px solid #4ECDC4' : '1px solid #f0f0f0',
-                  borderRadius: '16px'
+                  borderColor: role === 'husband' ? 'var(--teal-color)' : undefined
                 }}
               >
-                <div style={{ fontSize: '48px', marginBottom: '8px' }}>👨‍🍳</div>
-                <div style={{ fontSize: '16px', fontWeight: 500, color: '#333' }}>老公</div>
-                <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>负责做菜</div>
-              </Card>
+                <div className="role-icon">👨‍🍳</div>
+                <div className="role-name">老公</div>
+                <div className="role-desc">负责做菜</div>
+              </div>
             </div>
             <Button
               block
-              color="default"
               size="large"
               onClick={() => setStep(1)}
-              style={{ marginTop: '16px' }}
+              className="auth-btn-secondary"
             >
               上一步
             </Button>
@@ -223,9 +217,9 @@ export default function Register() {
             </Button>
             <Button
               block
-              color="default"
               size="large"
               onClick={() => setStep(2)}
+              className="auth-btn-secondary"
               style={{ marginTop: '12px' }}
             >
               上一步
@@ -233,9 +227,8 @@ export default function Register() {
           </>
         )}
 
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <span style={{ color: '#999' }}>已有账号？</span>
-          <a onClick={() => navigate('/login')} style={{ color: '#4ECDC4', fontWeight: 500 }}> 立即登录</a>
+        <div className="auth-link">
+          已有账号？<span className="auth-link-text" onClick={() => navigate('/login')}>立即登录</span>
         </div>
       </div>
     </div>

@@ -1,63 +1,63 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NavBar } from 'antd-mobile';
+import { NavBar, Toast } from 'antd-mobile';
 import { useHusbandStore } from '../../stores/husbandStore';
 import { sendCompletionMessage } from '../../api/husband';
-import TodayTasks from './components/TodayTasks';
+import HeroCard from './components/HeroCard';
+import PendingTasks from './components/PendingTasks';
+import ProgressBar from './components/ProgressBar';
 import QuickActions from './components/QuickActions';
 import EmptyState from './components/EmptyState';
-import FeedbackModal from './components/FeedbackModal';
+import {
+  getGreeting,
+  getAchievementText,
+  getLazyResponse
+} from './components/EmotionModule';
 import './Husband.css';
-
-function getDynamicGreeting() {
-  const greetings = [
-    '她今天想吃这些～',
-    '加油做饭吧！',
-    '今天做什么呢？',
-    '大厨今天上线啦！',
-  ];
-  return greetings[Math.floor(Math.random() * greetings.length)];
-}
-
-function getCompletedCount(tasks: any[]) {
-  return tasks.filter((t) => t.status === 'completed').length;
-}
 
 export default function Husband() {
   const navigate = useNavigate();
   const { tasks, fetchTasks, startCooking, completeTask, randomCook, cookFavorite, beLazy } = useHusbandStore();
-  const [feedbackVisible, setFeedbackVisible] = useState(false);
-  const [completedDishName, setCompletedDishName] = useState('');
-  const [completedTaskId, setCompletedTaskId] = useState('');
-  const [greeting] = useState(getDynamicGreeting);
+  const [showLazyResponse, setShowLazyResponse] = useState(false);
+  const [lazyText, setLazyText] = useState('');
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  const handleStart = (id: string) => {
-    startCooking(id);
+  // 分离任务状态
+  const currentTask = tasks.find(t => t.status === 'cooking') || tasks.find(t => t.status === 'pending');
+  const pendingTasks = tasks.filter(t => t.status === 'pending');
+  const completedCount = tasks.filter(t => t.status === 'completed').length;
+  const totalCount = tasks.length;
+
+  const greeting = getGreeting();
+  const achievementText = getAchievementText(completedCount, totalCount);
+
+  const handleStart = async (id: string) => {
+    await startCooking(id);
   };
 
-  const handleComplete = (id: string) => {
-    const task = tasks.find((t) => t.id === id);
-    if (task) {
-      setCompletedDishName(task.dish.name);
-      setCompletedTaskId(id);
-      completeTask(id);
-      setFeedbackVisible(true);
-    }
-  };
-
-  const handleNotify = async () => {
-    if (completedTaskId) {
+  const handleComplete = async (id: string) => {
+    try {
+      await completeTask(id);
+      Toast.show({
+        content: '太棒了！🎉',
+        icon: 'success',
+        duration: 1500
+      });
+      // 自动发送通知
       try {
-        await sendCompletionMessage(completedTaskId);
+        await sendCompletionMessage(id);
       } catch (e) {
-        // ignore error
+        // ignore
       }
+    } catch (e) {
+      Toast.show({
+        content: '操作失败，请重试',
+        icon: 'fail'
+      });
     }
-    setFeedbackVisible(false);
   };
 
   const handleRandom = () => {
@@ -70,11 +70,10 @@ export default function Husband() {
 
   const handleLazy = () => {
     beLazy();
+    setLazyText(getLazyResponse());
+    setShowLazyResponse(true);
+    setTimeout(() => setShowLazyResponse(false), 2500);
   };
-
-  const completedCount = getCompletedCount(tasks);
-  const totalCount = tasks.length;
-  const allCompleted = totalCount > 0 && completedCount === totalCount;
 
   return (
     <div className="husband-page">
@@ -83,7 +82,7 @@ export default function Husband() {
         right={
           <span
             onClick={() => navigate('/husband/history')}
-            style={{ color: '#FFF', cursor: 'pointer', fontSize: '13px' }}
+            style={{ color: '#FFF', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
           >
             历史
           </span>
@@ -94,57 +93,64 @@ export default function Husband() {
       </NavBar>
 
       <div className="husband-content">
-        <div className="husband-header">
-          <div className="husband-header-top">
-            <h1 className="husband-title">今天的任务 🍳</h1>
-            <span className="husband-subtitle">{greeting}</span>
+        {/* 问候区 */}
+        <div className="greeting-section">
+          <div className="greeting-emoji">{greeting.emoji}</div>
+          <h1 className="greeting-title">大厨，晚上好</h1>
+          <p className="greeting-subtitle">{greeting.text}</p>
+        </div>
+
+        {/* 主任务区 */}
+        {currentTask ? (
+          <HeroCard
+            task={currentTask}
+            onStart={handleStart}
+            onComplete={handleComplete}
+            isPrimary={true}
+          />
+        ) : tasks.length === 0 ? (
+          <EmptyState onRandomCook={handleRandom} />
+        ) : (
+          <div className="all-done-section">
+            <div className="all-done-icon">🎉</div>
+            <h2 className="all-done-title">今天全部完成啦！</h2>
+            <p className="all-done-subtitle">大厨辛苦了～休息一下吧</p>
           </div>
-          {tasks.length > 0 && !allCompleted && (
-            <div className="husband-progress">
-              <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${(completedCount / totalCount) * 100}%` }}
-                />
-              </div>
-              <span className="progress-text">
-                {completedCount}/{totalCount} 完成
-              </span>
-            </div>
-          )}
-          {allCompleted && (
-            <div className="husband-complete-tip">
-              🎉 太棒了！全部完成啦！
-            </div>
-          )}
-        </div>
+        )}
 
-        <div className="husband-body">
-          {tasks.length === 0 ? (
-            <EmptyState onRandomCook={handleRandom} />
-          ) : (
-            <>
-              <TodayTasks
-                tasks={tasks}
-                onStart={handleStart}
-                onComplete={handleComplete}
-              />
-              <QuickActions
-                onRandom={handleRandom}
-                onFavorite={handleFavorite}
-                onLazy={handleLazy}
-              />
-            </>
-          )}
-        </div>
+        {/* 进度条 */}
+        {totalCount > 0 && (
+          <ProgressBar
+            completed={completedCount}
+            total={totalCount}
+            achievementText={achievementText}
+          />
+        )}
+
+        {/* 待做任务 */}
+        {pendingTasks.length > 1 && (
+          <PendingTasks
+            tasks={pendingTasks.slice(1)}
+            onStart={handleStart}
+          />
+        )}
+
+        {/* 偷懒反馈 */}
+        {showLazyResponse && (
+          <div className="lazy-feedback">
+            <p className="lazy-feedback-text">{lazyText}</p>
+          </div>
+        )}
+
+        {/* 快捷操作 */}
+        {totalCount > 0 && (
+          <QuickActions
+            onRandom={handleRandom}
+            onFavorite={handleFavorite}
+            onLazy={handleLazy}
+          />
+        )}
       </div>
-
-      <FeedbackModal
-        visible={feedbackVisible}
-        dishName={completedDishName}
-        onNotify={handleNotify}
-        onClose={() => setFeedbackVisible(false)}
-      />
     </div>
   );
 }

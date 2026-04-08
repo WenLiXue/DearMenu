@@ -1,0 +1,128 @@
+/* EmotionModule - 情绪模块样式 */
+
+.emotion-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* 问候区 */
+.greeting-section {
+  text-align: center;
+  padding: var(--space-lg) 0;
+}
+
+.greeting-emoji {
+  font-size: 40px;
+  margin-bottom: var(--space-sm);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.greeting-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xs);
+}
+
+.greeting-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* 成就区 */
+.achievement-section {
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.08) 0%, rgba(110, 231, 223, 0.05) 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  text-align: center;
+  border: 1px solid rgba(78, 205, 196, 0.15);
+}
+
+.achievement-text {
+  font-size: 16px;
+  color: var(--teal-color);
+  font-weight: 500;
+  margin: 0;
+  animation: fadeInUp 0.5s var(--ease-out);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 她的反馈 */
+.her-feedback {
+  background: rgba(240, 101, 101, 0.05);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  border-left: 3px solid var(--primary-color);
+}
+
+.her-feedback-label {
+  font-size: 12px;
+  color: var(--text-placeholder);
+  margin-bottom: var(--space-xs);
+}
+
+.her-feedback-text {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin: 0;
+  font-style: italic;
+}
+
+.her-feedback-text::before {
+  content: '"';
+}
+
+.her-feedback-text::after {
+  content: '"';
+}
+
+/* 偷懒反馈 */
+.lazy-feedback {
+  text-align: center;
+  padding: var(--space-xl);
+  animation: bounceIn 0.5s var(--ease-out);
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lazy-feedback-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--teal-color);
+  margin: 0 0 var(--space-lg);
+}
+
+.lazy-feedback-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}

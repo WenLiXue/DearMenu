@@ -1,60 +1,75 @@
+/* FeedbackModal - 柔和反馈弹窗 */
+
 .feedback-modal .adm-modal-body {
   padding: 0 !important;
+  border-radius: 24px !important;
+  overflow: hidden;
 }
 
 .feedback-modal-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 28px 24px 24px;
+  padding: 32px 28px 24px;
   text-align: center;
 }
 
 .feedback-modal-icon {
   font-size: 56px;
   margin-bottom: 12px;
+  animation: pop 0.4s var(--ease-out);
+}
+
+@keyframes pop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
 .feedback-modal-title {
   margin: 0 0 4px;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .feedback-modal-dish {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   font-size: 16px;
-  color: #4ECDC4;
+  color: var(--teal-color);
   font-weight: 600;
 }
 
 .feedback-modal-tip {
-  margin: 0 0 20px;
+  margin: 0 0 24px;
   font-size: 14px;
-  color: #999;
+  color: var(--text-secondary);
 }
 
 .feedback-modal-btn {
   width: 100%;
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%) !important;
-  color: #FFF !important;
-  border: none !important;
   border-radius: 24px !important;
   font-size: 16px !important;
+  font-weight: 600;
   padding: 14px !important;
   margin-bottom: 10px;
-  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+  transition: all 0.2s var(--ease-out);
 }
 
 .feedback-modal-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
-.feedback-modal-close {
-  background: transparent !important;
-  color: #999 !important;
+.feedback-modal-btn.primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #ff8a8a 100%) !important;
+  color: #fff !important;
   border: none !important;
-  font-size: 13px !important;
-  padding: 8px !important;
+  box-shadow: 0 4px 16px rgba(240, 101, 101, 0.3);
+}
+
+.feedback-modal-btn.secondary {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  border: none !important;
+  font-size: 14px !important;
 }

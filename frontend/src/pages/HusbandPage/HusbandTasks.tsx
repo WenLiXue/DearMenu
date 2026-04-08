@@ -69,7 +69,7 @@ export default function HusbandTasks() {
   return (
     <div className="husband-tasks-page">
       <NavBar
-        back={null}
+        onBack={() => navigate('/husband')}
         right={
           <span
             onClick={() => navigate('/husband/history')}

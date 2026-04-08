@@ -1,0 +1,116 @@
+/* ProgressBar - 粗进度条样式 */
+
+.progress-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.progress-info {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+
+.progress-count {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.progress-current {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--teal-color);
+  line-height: 1;
+  transition: all 0.3s var(--ease-out);
+}
+
+.progress-separator {
+  font-size: 20px;
+  color: var(--text-placeholder);
+  margin: 0 2px;
+}
+
+.progress-total {
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+.progress-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.progress-crown {
+  font-size: 24px;
+  animation: bounce 0.5s var(--ease-out);
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* 粗进度条 */
+.progress-track {
+  height: 12px;
+  background: var(--bg-input);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: var(--space-md);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal-color) 0%, #6EE7DF 100%);
+  border-radius: 6px;
+  transition: width 0.5s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 成就文案 */
+.progress-tip {
+  font-size: 15px;
+  color: var(--teal-color);
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+  padding: var(--space-sm) 0;
+  animation: fadeIn 0.5s var(--ease-out);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

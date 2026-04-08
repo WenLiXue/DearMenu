@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { NavBar } from 'antd-mobile';
 import { useHusbandStore } from '../../stores/husbandStore';
 import './HusbandHistory.css';
@@ -13,7 +14,8 @@ function formatTime(dateStr: string) {
 }
 
 export default function HusbandHistory() {
-  const { history, fetchHistory, isLoading } = useHusbandStore();
+  const navigate = useNavigate();
+  const { history, fetchHistory } = useHusbandStore();
 
   useEffect(() => {
     fetchHistory();
@@ -22,7 +24,7 @@ export default function HusbandHistory() {
   return (
     <div className="history-page">
       <NavBar
-        back="/husband"
+        onBack={() => navigate('/husband')}
         style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%)', color: '#FFF' }}
       >
         历史记录
@@ -40,8 +42,8 @@ export default function HusbandHistory() {
             {history.map((task) => (
               <div key={task.id} className="history-item">
                 <div className="history-item-image">
-                  {task.dish.image_url ? (
-                    <img src={task.dish.image_url} alt={task.dish.name} />
+                  {(task.dish as any).image_url ? (
+                    <img src={(task.dish as any).image_url} alt={task.dish.name} />
                   ) : (
                     <span className="history-item-placeholder">🍽️</span>
                   )}

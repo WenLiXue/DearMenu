@@ -11,12 +11,13 @@ interface TaskCardProps {
 export default function TaskCard({ task, onStart, onComplete }: TaskCardProps) {
   const { dish, status } = task;
   const isFavorite = dish.tags?.includes('她爱吃');
+  const imageUrl = (dish as any).image_url;
 
   return (
     <div className={`task-card ${status}`}>
       <div className="task-card-image">
-        {dish.image_url ? (
-          <img src={dish.image_url} alt={dish.name} />
+        {imageUrl ? (
+          <img src={imageUrl} alt={dish.name} />
         ) : (
           <div className="task-card-image-placeholder">🍽️</div>
         )}
