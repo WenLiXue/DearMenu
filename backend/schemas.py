@@ -38,7 +38,6 @@ class TokenData(BaseModel):
 class RegisterRequest(BaseModel):
     username: str
     password: str
-    role: str  # "wife" or "husband"
     family_name: Optional[str] = None  # 创建新家庭时填写
     invite_code: Optional[str] = None  # 加入现有家庭时填写
 
@@ -54,6 +53,13 @@ class LoginResponse(BaseModel):
     role: str
     family_id: Optional[UUID] = None
     username: str
+    user_id: UUID
+
+
+class SetupRoleRequest(BaseModel):
+    role: str  # wife/husband
+    family_name: Optional[str] = None
+    invite_code: Optional[str] = None
 
 
 # Family schemas
@@ -434,27 +440,50 @@ class CategoryAnalysisResponse(BaseModel):
 
 # ============ Order Schemas ============
 
-class OrderCreate(BaseModel):
+class OrderItemCreate(BaseModel):
     dish_id: UUID
-    notes: Optional[str] = None  # 点餐备注
+    notes: Optional[str] = None
+
+
+class OrderCreate(BaseModel):
+    items: List[OrderItemCreate]  # 批量下单
+    notes: Optional[str] = None
+
+
+class OrderItemResponse(BaseModel):
+    id: UUID
+    order_id: UUID
+    dish_id: UUID
+    status: str
+    notes: Optional[str] = None
+    cooked_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class OrderResponse(BaseModel):
+    id: UUID
+    family_id: UUID
+    user_id: UUID
+    status: str
+    notes: Optional[str] = None
+    created_at: datetime
+    confirmed_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    items: List[OrderItemResponse] = []
+    dishes: List[DishResponse] = []  # 兼容旧接口
+
+    class Config:
+        from_attributes = True
 
 
 class OrderStatusUpdate(BaseModel):
     status: str  # "pending", "cooking", "completed"
 
 
-class OrderResponse(BaseModel):
-    id: UUID
-    user_id: UUID
-    dish_id: UUID
-    status: str
-    notes: Optional[str] = None
-    created_at: datetime
-    cooked_at: Optional[datetime] = None
-    dish: Optional[DishResponse] = None
-
-    class Config:
-        from_attributes = True
+class RejectOrderRequest(BaseModel):
+    reason: str
 
 
 # ============ 统一响应模型 ============

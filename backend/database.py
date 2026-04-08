@@ -20,4 +20,5 @@ def get_db():
 def init_db():
     """创建所有表"""
     import models  # noqa
+    import family_members  # noqa - 注册 FamilyMember 模型
     Base.metadata.create_all(bind=engine)

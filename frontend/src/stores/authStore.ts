@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await api.login(username, password);
           set({
-            user: { id: '', username, role: response.role, familyId: response.family_id },
+            user: { id: response.user_id || '', username, role: response.role, familyId: response.family_id },
             token: response.access_token,
             isAuthenticated: true,
             isLoading: false,
@@ -57,7 +57,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await api.register(username, password, role, familyName, inviteCode);
           set({
-            user: { id: '', username, role: response.role, familyId: response.family_id },
+            user: { id: response.user_id || '', username, role: response.role, familyId: response.family_id },
             token: response.access_token,
             isAuthenticated: true,
             isLoading: false,

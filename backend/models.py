@@ -106,13 +106,61 @@ class Favorite(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    family_id = Column(UUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False)
     dish_id = Column(UUID(as_uuid=True), ForeignKey("dishes.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="favorites")
-    family = relationship("Family")
     dish = relationship("Dish", back_populates="favorites")
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'dish_id', name='unique_user_dish_favorite'),
+    )
+
+
+class OrderStatus(str, enum.Enum):
+    PENDING = "pending"
+    COOKING = "cooking"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    REJECTED = "rejected"
+
+
+class OrderItemStatus(str, enum.Enum):
+    PENDING = "pending"
+    COOKING = "cooking"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    family_id = Column(UUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)  # 下单人
+    status = Column(Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    confirmed_at = Column(DateTime(timezone=True), nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+
+    family = relationship("Family")
+    user = relationship("User", foreign_keys=[user_id])
+    items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    dish_id = Column(UUID(as_uuid=True), ForeignKey("dishes.id", ondelete="CASCADE"), nullable=False)
+    status = Column(Enum(OrderItemStatus), default=OrderItemStatus.PENDING, nullable=False)
+    notes = Column(Text, nullable=True)
+    cooked_at = Column(DateTime(timezone=True), nullable=True)
+
+    order = relationship("Order", back_populates="items")
+    dish = relationship("Dish")
 
 
 class OrderHistory(Base):

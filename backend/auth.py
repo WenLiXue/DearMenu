@@ -86,3 +86,46 @@ def require_family(current_user: User = Depends(get_current_user)) -> User:
             detail="请先加入或创建家庭"
         )
     return current_user
+
+
+# 权限映射表
+PERMISSIONS = {
+    "wife": [
+        "order:create",
+        "order:cancel",
+        "order:notify",
+        "dish:create",
+        "dish:update",
+        "dish:delete",
+        "category:manage",
+        "favorite:manage",
+    ],
+    "husband": [
+        "order:accept",
+        "order:reject",
+        "order:complete",
+        "dish:view",
+        "message:send",
+    ],
+    "admin": [
+        "admin:all",
+    ],
+}
+
+
+def require_permission(permission: str):
+    """
+    权限校验装饰器
+    permission: 如 "order:create", "order:accept" 等
+    """
+    def dependency(current_user: User = Depends(get_current_user)):
+        user_permissions = PERMISSIONS.get(current_user.role.value, [])
+        if "admin:all" in user_permissions:
+            return current_user
+        if permission not in user_permissions:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="权限不足"
+            )
+        return current_user
+    return dependency

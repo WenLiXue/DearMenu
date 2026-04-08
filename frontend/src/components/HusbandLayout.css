@@ -1,0 +1,57 @@
+/* HusbandLayout - 老公端共享布局 */
+
+.husband-layout {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-page);
+}
+
+.husband-navbar {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #4ECDC4, #6EE7DF) !important;
+  color: #FFF !important;
+  --adm-color-text: #FFF !important;
+}
+
+.husband-navbar .adm-nav-bar-back-arrow,
+.husband-navbar .adm-nav-bar-right {
+  color: #FFF !important;
+}
+
+.husband-navbar .adm-nav-bar-title {
+  color: #FFF !important;
+  font-weight: 600;
+}
+
+.husband-tabbar {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-light) !important;
+}
+
+.husband-tabbar .adm-tab-bar-item-text {
+  color: var(--text-placeholder) !important;
+}
+
+.husband-tabbar .adm-tab-bar-tab-active .adm-tab-bar-item-text {
+  color: var(--teal-color) !important;
+}
+
+.husband-tabbar .adm-tab-bar-tab-active .tab-icon {
+  color: var(--teal-color) !important;
+  opacity: 1;
+}
+
+.husband-tabbar .tab-icon {
+  font-size: 22px;
+  opacity: 0.5;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.husband-tabbar .tab-icon-active {
+  opacity: 1;
+}

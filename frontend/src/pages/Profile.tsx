@@ -84,7 +84,7 @@ export default function Profile() {
 
         {/* 历史记录 */}
         <div className="history-section">
-          <div className="history-item" onClick={() => navigate('/history')}>
+          <div className="history-item" onClick={() => navigate('/history', { state: { hideTabBar: true } })}>
             <div className="history-item-left">
               <span className="history-item-icon">📜</span>
               <p className="history-item-text">点餐历史</p>
@@ -95,7 +95,7 @@ export default function Profile() {
 
         {/* 功能菜单 */}
         <div className="menu-section">
-          <div className="menu-item" onClick={() => navigate('/categories')}>
+          <div className="menu-item" onClick={() => navigate('/categories', { state: { hideTabBar: true } })}>
             <div className="menu-item-left">
               <span className="menu-item-icon">📂</span>
               <p className="menu-item-text">分类管理</p>

@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd-mobile';
 import { DeviceProvider } from './contexts/DeviceContext';
-import Layout from './components/Layout';
+import WifeLayout from './components/WifeLayout';
+import HusbandLayout from './components/HusbandLayout';
 import AdminLayout from './components/AdminLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -38,67 +39,52 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* 老婆端路由 */}
+            {/* 老婆端路由 - WifeLayout */}
             <Route
-              path="/"
               element={
                 <AuthGuard allowedRoles={['wife']}>
-                  <Layout />
+                  <WifeLayout />
                 </AuthGuard>
               }
             >
               <Route index element={<Navigate to="/home" replace />} />
               <Route path="/home" element={<Home />} />
-              <Route path="/categories" element={<Categories />} />
               <Route path="/dishes" element={<Dishes />} />
-              <Route path="/dish-form" element={<DishForm />} />
-              <Route path="/dish-form/:id" element={<DishForm />} />
+              <Route path="/orders" element={<Orders />} />
               <Route path="/favorites" element={<Favorites />} />
+              <Route path="/profile" element={<Profile />} />
+              {/* 二级页面（通过 location.state?.hideTabBar 隐藏 TabBar） */}
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/dish-form/:id?" element={<DishForm />} />
               <Route path="/history" element={<History />} />
               <Route path="/random" element={<RandomPick />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/chat/:userId" element={<Chat />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/profile" element={<Profile />} />
             </Route>
 
-            {/* 老公端路由 */}
+            {/* 老公端路由 - HusbandLayout */}
             <Route
-              path="/husband/tasks"
               element={
                 <AuthGuard allowedRoles={['husband']}>
-                  <HusbandTasks />
+                  <HusbandLayout />
                 </AuthGuard>
               }
-            />
-            <Route
-              path="/husband"
-              element={
-                <AuthGuard allowedRoles={['husband']}>
-                  <Husband />
-                </AuthGuard>
-              }
-            />
-            <Route
-              path="/husband/history"
-              element={
-                <AuthGuard allowedRoles={['husband']}>
-                  <HusbandHistory />
-                </AuthGuard>
-              }
-            />
+            >
+              <Route path="/husband" element={<Husband />} />
+              <Route path="/husband/tasks" element={<HusbandTasks />} />
+              <Route path="/husband/history" element={<HusbandHistory />} />
+            </Route>
 
             {/* 管理端路由 */}
             <Route
-              path="/admin"
               element={
                 <AuthGuard allowedRoles={['admin']}>
                   <AdminLayout />
                 </AuthGuard>
               }
             >
-              <Route index element={<Dashboard />} />
+              <Route path="/admin" element={<Dashboard />} />
               <Route path="/admin/dishes" element={<DishManage />} />
               <Route path="/admin/categories" element={<CategoryManage />} />
               <Route path="/admin/favorites" element={<FavoriteManage />} />

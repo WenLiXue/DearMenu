@@ -87,7 +87,7 @@ export default function Dishes() {
         back="返回"
         onBack={() => navigate('/home')}
         right={
-          <span onClick={() => navigate('/dish-form')} style={{ color: '#FFF', cursor: 'pointer' }}>
+          <span onClick={() => navigate('/dish-form', { state: { hideTabBar: true } })} style={{ color: '#FFF', cursor: 'pointer' }}>
             添加
           </span>
         }

@@ -1,30 +1,25 @@
-/* Layout 组件 v3.0 - 统一高度策略 */
+/* Layout 组件 v5.0 - 统一滚动策略 */
 
 .layout-container {
   height: 100dvh;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background: var(--bg-page);
+}
+
+.husband-layout {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(180deg, #F0FFFE 0%, #F5F5F7 100%);
 }
 
 .layout-content {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-}
-
-.page-content {
-  padding: var(--space-lg);
-  padding-bottom: calc(60px + env(safe-area-inset-bottom) + var(--space-sm));
-}
-
-.page-content.compact {
-  padding: var(--space-md);
-  padding-bottom: calc(60px + env(safe-area-inset-bottom) + var(--space-sm));
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
 }
 
 .layout-tabbar {
@@ -74,4 +69,13 @@
 .adm-tab-bar-tab-active .tab-icon {
   color: var(--primary-color);
   opacity: 1;
+}
+
+/* 老公端 TabBar 激活色 */
+.husband-layout .adm-tab-bar-tab-active .adm-tab-bar-tab-label {
+  color: var(--teal-color) !important;
+}
+
+.husband-layout .adm-tab-bar-tab-active .tab-icon {
+  color: var(--teal-color) !important;
 }
