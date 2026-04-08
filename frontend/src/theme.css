@@ -415,6 +415,73 @@ body {
   animation: fadeIn var(--duration-slow) var(--ease-out);
 }
 
+/* ==================== 老婆端情绪化动效 ==================== */
+
+/* 心跳动画 - 用于收藏按钮点击 */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.1); }
+}
+
+.anim-heartbeat {
+  animation: heartbeat 0.6s ease-in-out;
+}
+
+/* 飘浮动画 - 用于推荐卡片 */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.anim-float {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* 淡入上移动画 - 用于内容加载 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.anim-fade-in {
+  animation: fadeInUp var(--duration-slow) var(--ease-out);
+}
+
+/* 缩放弹跳 - 用于按钮点击 */
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.anim-pop {
+  animation: pop 0.15s ease-out;
+}
+
+/* ==================== 老婆端专属样式 ==================== */
+
+/* 温柔渐变背景 */
+.bg-wife {
+  background: linear-gradient(180deg, #FFF5F5 0%, #F5F5F7 100%);
+}
+
+/* 心动标签 */
+.tag-love {
+  background: rgba(240, 101, 101, 0.1);
+  color: var(--primary-color);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 粉色强调边框 */
+.border-love {
+  border-left: 3px solid var(--primary-color);
+}
+
 /* ==================== 文字排版 v3.0 ==================== */
 
 .text-title-lg {

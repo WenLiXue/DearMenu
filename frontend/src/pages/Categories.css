@@ -1,0 +1,82 @@
+/* Categories 页面样式 */
+
+.categories-page {
+  background: var(--bg-page);
+  min-height: 100vh;
+}
+
+.categories-navbar {
+  background: var(--teal-gradient) !important;
+  color: #FFF !important;
+}
+
+.categories-content {
+  padding: var(--space-lg);
+}
+
+.categories-add-btn {
+  background: var(--teal-gradient) !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  margin-bottom: var(--space-lg);
+}
+
+.categories-loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.categories-card {
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.categories-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+}
+
+.categories-card-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.categories-card-icon {
+  font-size: 24px;
+}
+
+.categories-card-title {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.categories-card-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.categories-dialog-form {
+  padding: var(--space-sm) 0;
+}
+
+.categories-dialog-field {
+  margin-bottom: var(--space-md);
+}
+
+.categories-dialog-label {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.categories-dialog-input {
+  margin-top: var(--space-sm);
+  background: var(--bg-input) !important;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  padding: var(--space-sm) !important;
+}

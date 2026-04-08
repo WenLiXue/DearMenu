@@ -1,8 +1,12 @@
-/* Home 页面 v3.0 - 克制、温柔、情侣仪式感 */
+/* Home 页面 v3.0 - 紧凑布局 */
+
+/* ==================== 页面容器 ==================== */
 
 .page-container {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-page);
+  display: flex;
+  flex-direction: column;
 }
 
 .page-content {
@@ -10,53 +14,43 @@
   padding-bottom: calc(60px + env(safe-area-inset-bottom) + var(--space-lg));
 }
 
+/* ==================== 紧凑布局 (Task #3) ==================== */
+
+.page-content.compact {
+  padding: var(--space-md);
+  padding-bottom: calc(60px + env(safe-area-inset-bottom) + var(--space-sm));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  height: 100%;
+  overflow-y: auto;
+}
+
 /* ==================== 欢迎区域 ==================== */
 
 .welcome-section {
-  margin-bottom: var(--space-2xl);
+  margin-bottom: 0;
 }
 
 .greeting-row {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xs);
+  gap: var(--space-xs);
 }
 
 .greeting-icon {
   font-size: 16px;
-  opacity: 0.8;
 }
 
 .greeting-text {
-  color: var(--text-secondary);
   font-size: 14px;
+  color: var(--text-secondary);
 }
 
-.main-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1.2;
-}
-
-/* ==================== 今日一句 ==================== */
+/* ==================== 每日一句 (隐藏，并入卡片) ==================== */
 
 .daily-quote {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md) var(--space-lg);
-  margin-bottom: var(--space-xl);
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-sm);
-}
-
-.daily-quote-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  text-align: center;
-  margin: 0;
+  display: none;
 }
 
 /* ==================== 推荐卡片 v3.0（故事感） ==================== */
@@ -64,9 +58,8 @@
 .random-dish-section {
   background: linear-gradient(145deg, #FFFDF5 0%, #FFF8E7 100%);
   border-radius: var(--radius-xl);
-  padding: var(--space-2xl);
+  padding: var(--space-lg);
   text-align: center;
-  margin-bottom: var(--space-xl);
   box-shadow: var(--shadow-warm);
   border: 1px solid rgba(245, 215, 110, 0.2);
 }
@@ -76,11 +69,11 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .random-dish-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .random-dish-label {
@@ -90,20 +83,22 @@
 }
 
 .random-dish-name {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 var(--space-xs);
 }
 
-.random-dish-tags {
+.random-dish-reason {
   font-size: 13px;
   color: var(--text-secondary);
-  margin: 0 0 var(--space-lg);
+  margin: 0 0 var(--space-md);
 }
 
-.random-dish-tags span {
-  margin: 0 var(--space-xs);
+.random-dish-buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
 }
 
 .reroll-btn {
@@ -122,23 +117,38 @@
   background: var(--bg-input) !important;
 }
 
-/* ==================== 快捷入口 v3.0（两列布局） ==================== */
+.order-btn {
+  background: var(--primary-color) !important;
+  border: none !important;
+  color: #FFF !important;
+  border-radius: var(--radius-full) !important;
+  padding: var(--space-sm) var(--space-lg) !important;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.order-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+/* ==================== 快捷入口 v3.0（三列布局） ==================== */
 
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
 }
 
 .quick-action-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: var(--space-xl) var(--space-lg);
+  padding: var(--space-md);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-xs);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-subtle);
   cursor: pointer;
@@ -150,163 +160,13 @@
   transform: scale(0.96);
 }
 
-.quick-action-card:first-child {
-  background: linear-gradient(145deg, #FFF5F5 0%, #FFF 100%);
-}
-
 .quick-action-icon {
-  font-size: 28px;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-input);
-  border-radius: var(--radius-md);
+  font-size: 24px;
 }
 
 .quick-action-title {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
-}
-
-.quick-action-desc {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin: 0;
-  text-align: center;
-}
-
-/* ==================== 情侣互动卡片 ==================== */
-
-.couple互动-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  margin-bottom: var(--space-xl);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-.couple-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--primary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-
-.couple-avatar.husband {
-  background: var(--teal-color);
-}
-
-.couple-info {
-  flex: 1;
-}
-
-.couple-status {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.couple-dish {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: var(--space-xs) 0 0;
-}
-
-/* ==================== 邀请码卡片 v3.0 ==================== */
-
-.invite-code-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  margin-bottom: var(--space-xl);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-subtle);
-}
-
-.invite-code-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-sm);
-}
-
-.invite-code-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.invite-code-actions {
-  display: flex;
-  gap: var(--space-sm);
-}
-
-.invite-code-value {
-  font-size: 20px;
-  font-weight: 700;
-  font-family: 'SF Mono', 'Menlo', monospace;
-  color: var(--primary-color);
-  letter-spacing: 2px;
-  margin-bottom: var(--space-xs);
-}
-
-.invite-code-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.invite-code-btn {
-  background: transparent !important;
-  color: var(--primary-color) !important;
-  border: 1.5px solid var(--primary-color) !important;
-  border-radius: var(--radius-full) !important;
-  font-size: 12px !important;
-  padding: var(--space-xs) var(--space-md) !important;
-}
-
-.invite-code-btn:active {
-  background: rgba(240, 101, 101, 0.05) !important;
-}
-
-.invite-code-btn-regenerate {
-  background: var(--primary-color) !important;
-  color: #FFF !important;
-  border: none !important;
-  border-radius: var(--radius-full) !important;
-  font-size: 12px !important;
-  padding: var(--space-xs) var(--space-md) !important;
-}
-
-/* ==================== 历史记录入口 ==================== */
-
-.history-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  color: var(--text-secondary);
-  font-size: 14px;
-  cursor: pointer;
-  transition: color var(--duration-fast) var(--ease-out);
-}
-
-.history-link:active {
-  color: var(--text-main);
 }

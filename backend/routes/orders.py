@@ -265,3 +265,32 @@ def send_order_reminder(
     )
 
     return success_response(message="提醒已发送")
+
+
+@router.delete("/{order_id}")
+def delete_order(
+    order_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_family)
+):
+    """删除订单（仅能删除自己创建的 pending 状态订单）"""
+    order = db.query(OrderHistory).filter(
+        OrderHistory.id == order_id,
+        OrderHistory.family_id == current_user.family_id
+    ).first()
+
+    if not order:
+        return error_response(message="订单不存在", code=status.HTTP_404_NOT_FOUND)
+
+    # 只能删除 pending 状态的订单
+    if order.status != TaskStatus.PENDING:
+        return error_response(message="只能删除待处理的订单", code=status.HTTP_400_BAD_REQUEST)
+
+    # 验证是否是本人创建
+    if order.user_id != current_user.id:
+        return error_response(message="只能删除自己创建的订单", code=status.HTTP_403_FORBIDDEN)
+
+    db.delete(order)
+    db.commit()
+
+    return success_response(message="订单已删除")

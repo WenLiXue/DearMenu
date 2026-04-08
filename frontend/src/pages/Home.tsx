@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NavBar, Button } from 'antd-mobile';
-import { useAuthStore } from '../stores/authStore';
 import { useDishStore } from '../stores/dishStore';
 import './Home.css';
 
@@ -14,17 +13,6 @@ function getGreeting() {
   if (hour < 18) return { text: '下午好', icon: '🈵️' };
   if (hour < 22) return { text: '晚上好', icon: '🌆' };
   return { text: '夜深了', icon: '🌙' };
-}
-
-function getDailyQuote() {
-  const quotes = [
-    '想吃点什么让人开心的 💕',
-    '今天也要好好吃饭哦 ✨',
-    '生活不止眼前的忙碌，还有美食 🍽️',
-    '好好吃饭，是对生活最好的尊重 💕',
-    '无论多忙，别忘了善待自己的胃 ✨',
-  ];
-  return quotes[Math.floor(Math.random() * quotes.length)];
 }
 
 function getRecommendReason() {
@@ -40,12 +28,10 @@ function getRecommendReason() {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const { fetchRandomDish, randomDish } = useDishStore();
   const [animateCard, setAnimateCard] = useState(false);
 
   const greeting = getGreeting();
-  const dailyQuote = getDailyQuote();
 
   useEffect(() => {
     fetchRandomDish();
@@ -59,6 +45,10 @@ export default function Home() {
     }, 300);
   };
 
+  const handleOrder = () => {
+    navigate('/dishes');
+  };
+
   return (
     <div className="page-container">
       <NavBar
@@ -68,26 +58,21 @@ export default function Home() {
             onClick={() => navigate('/profile')}
             style={{ color: 'var(--text-primary)', cursor: 'pointer', fontSize: '15px' }}
           >
-            👤
+            👰
           </span>
         }
         style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-light)' }}
       >
-        今晚吃点什么
+        🌸 老婆端
       </NavBar>
 
-      <div className="page-content home-content">
-        {/* 欢迎区域 */}
+      <div className="page-content compact">
+        {/* 欢迎区域 - 紧凑单行 */}
         <div className="welcome-section">
           <div className="greeting-row">
             <span className="greeting-icon">{greeting.icon}</span>
-            <span className="greeting-text">{greeting.text}，{user?.username}</span>
+            <span className="greeting-text">{greeting.text}，宝贝 👰</span>
           </div>
-        </div>
-
-        {/* 今日一句 */}
-        <div className="daily-quote">
-          <p className="daily-quote-text">{dailyQuote}</p>
         </div>
 
         {/* 推荐卡片 */}
@@ -98,31 +83,33 @@ export default function Home() {
               <span className="random-dish-label">今日推荐</span>
             </div>
             <h3 className="random-dish-name">{randomDish.name}</h3>
-            <p className="random-dish-reason">{getRecommendReason()}</p>
-            <Button
-              size="small"
-              className="reroll-btn"
-              onClick={handleRandomDecide}
-            >
-              换一批
-            </Button>
+            <p className="random-dish-reason">"{getRecommendReason()}"</p>
+            <div className="random-dish-buttons">
+              <Button size="small" className="order-btn" onClick={handleOrder}>
+                🍽️ 点餐
+              </Button>
+              <Button size="small" className="reroll-btn" onClick={handleRandomDecide}>
+                🔄 换一批
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* 快捷入口 - 两列布局 */}
+        {/* 快捷入口 - 三列布局 */}
         <div className="quick-actions">
           <div className="quick-action-card" onClick={() => navigate('/dishes')}>
             <div className="quick-action-icon">🍽️</div>
             <h3 className="quick-action-title">点餐</h3>
-            <p className="quick-action-desc">浏览菜单</p>
           </div>
           <div className="quick-action-card" onClick={() => navigate('/categories')}>
             <div className="quick-action-icon">📂</div>
             <h3 className="quick-action-title">分类</h3>
-            <p className="quick-action-desc">整理口味</p>
+          </div>
+          <div className="quick-action-card" onClick={() => navigate('/favorites')}>
+            <div className="quick-action-icon">❤️</div>
+            <h3 className="quick-action-title">收藏</h3>
           </div>
         </div>
-
       </div>
     </div>
   );

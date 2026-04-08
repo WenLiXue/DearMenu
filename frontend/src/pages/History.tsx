@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { NavBar, Card, Tag, Empty } from 'antd-mobile';
 import { useDishStore } from '../stores/dishStore';
 import { useNavigate } from 'react-router-dom';
+import './History.css';
 
 export default function History() {
   const navigate = useNavigate();
@@ -12,34 +13,37 @@ export default function History() {
   }, []);
 
   return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
+    <div className="history-page">
       <NavBar
+        className="history-navbar"
         back="返回"
         onBack={() => navigate('/home')}
-        style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)', color: '#FFF' }}
       >
         点餐历史
       </NavBar>
 
-      <div style={{ padding: '16px' }}>
+      <div className="history-content">
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>加载中...</div>
+          <div className="history-loading">加载中...</div>
         ) : history.length === 0 ? (
           <Empty description="暂无点餐历史" />
         ) : (
           history.map((record) => (
             <Card
               key={record.id}
-              style={{ borderRadius: '12px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+              className="history-card"
             >
-              <div style={{ padding: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div className="history-card-content">
+                <div className="history-card-header">
                   <div>
-                    <h3 style={{ margin: '0 0 4px', color: '#2C3E50' }}>{record.dish?.name || '未知菜品'}</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <div style={{ display: 'flex', gap: '2px' }}>
+                    <h3 className="history-dish-name">{record.dish?.name || '未知菜品'}</h3>
+                    <div className="history-meta">
+                      <div className="history-stars">
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <span key={star} style={{ color: record.dish && star <= record.dish.rating ? '#FFE66D' : '#ddd', fontSize: '14px' }}>
+                          <span
+                            key={star}
+                            className={`history-star ${record.dish && star <= record.dish.rating ? 'history-star-active' : 'history-star-inactive'}`}
+                          >
                             ★
                           </span>
                         ))}
@@ -52,7 +56,7 @@ export default function History() {
                       <Tag key={tag} color="warning" style={{ marginLeft: '4px' }}>{tag}</Tag>
                     ))}
                   </div>
-                  <span style={{ color: '#999', fontSize: '12px' }}>
+                  <span className="history-time">
                     {new Date(record.created_at).toLocaleString('zh-CN')}
                   </span>
                 </div>

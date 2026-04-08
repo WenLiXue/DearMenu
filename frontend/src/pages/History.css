@@ -1,0 +1,71 @@
+/* History 页面样式 */
+.history-page {
+  background: #FAFAFA;
+  min-height: 100vh;
+}
+
+.history-navbar {
+  background: var(--primary-gradient);
+  color: #FFF;
+}
+
+.history-content {
+  padding: var(--space-lg);
+}
+
+.history-loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.history-card {
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.history-card-content {
+  padding: var(--space-md);
+}
+
+.history-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.history-dish-name {
+  margin: 0 0 4px;
+  color: var(--text-primary);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.history-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.history-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.history-star {
+  font-size: 14px;
+}
+
+.history-star-active {
+  color: var(--accent-warm);
+}
+
+.history-star-inactive {
+  color: #ddd;
+}
+
+.history-time {
+  color: var(--text-secondary);
+  font-size: 12px;
+}

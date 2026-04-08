@@ -9,6 +9,7 @@ const EXCLUDE_TABS = ['/login', '/register', '/husband', '/husband/history', '/m
 const allTabs = [
   { key: '/home', title: '首页', icon: '🏠' },
   { key: '/dishes', title: '点餐', icon: '🍽️' },
+  { key: '/orders', title: '订单', icon: '📋' },
   { key: '/favorites', title: '收藏', icon: '❤️' },
   { key: '/profile', title: '我的', icon: '👤' },
 ];

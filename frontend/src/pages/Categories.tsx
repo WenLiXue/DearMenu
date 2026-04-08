@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NavBar, Card, Button, List, Input, Empty, Dialog, Toast } from 'antd-mobile';
+import { NavBar, Card, Button, Input, Empty, Dialog, Toast } from 'antd-mobile';
 import { useCategoryStore } from '../stores/categoryStore';
+import './Categories.css';
 
 export default function Categories() {
   const navigate = useNavigate();
@@ -70,49 +71,44 @@ export default function Categories() {
   };
 
   return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
+    <div className="categories-page">
       <NavBar
         back="返回"
         onBack={() => navigate('/home')}
-        style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%)', color: '#FFF' }}
+        className="categories-navbar"
       >
         分类管理
       </NavBar>
 
-      <div style={{ padding: '16px' }}>
+      <div className="categories-content">
         <Button
           block
           color="primary"
           size="large"
-          style={{
-            background: 'linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%)',
-            border: 'none',
-            borderRadius: '12px',
-            marginBottom: '16px'
-          }}
+          className="categories-add-btn"
           onClick={() => setShowAddDialog(true)}
         >
           添加分类
         </Button>
 
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>加载中...</div>
+          <div className="categories-loading">加载中...</div>
         ) : categories.length === 0 ? (
           <Empty description="暂无分类" />
         ) : (
           categories.map((category) => (
             <Card
               key={category.id}
-              style={{ borderRadius: '12px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+              className="categories-card"
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '24px' }}>{category.icon || '📂'}</span>
+              <div className="categories-card-body">
+                <div className="categories-card-left">
+                  <span className="categories-card-icon">{category.icon || '📂'}</span>
                   <div>
-                    <h3 style={{ margin: 0, color: '#2C3E50' }}>{category.name}</h3>
+                    <h3 className="categories-card-title">{category.name}</h3>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="categories-card-actions">
                   <Button size="small" onClick={() => openEditDialog(category)}>编辑</Button>
                   <Button size="small" color="danger" onClick={() => handleDelete(category.id)}>删除</Button>
                 </div>
@@ -126,23 +122,23 @@ export default function Categories() {
         visible={showAddDialog}
         header="添加分类"
         content={
-          <div style={{ padding: '8px 0' }}>
-            <div style={{ marginBottom: '12px' }}>
-              <span style={{ color: '#2C3E50', fontSize: '14px' }}>名称</span>
+          <div className="categories-dialog-form">
+            <div className="categories-dialog-field">
+              <span className="categories-dialog-label">名称</span>
               <Input
                 placeholder="请输入分类名称"
                 value={name}
                 onChange={setName}
-                style={{ marginTop: '8px', background: '#f5f5f5', borderRadius: '8px', padding: '8px' }}
+                className="categories-dialog-input"
               />
             </div>
-            <div>
-              <span style={{ color: '#2C3E50', fontSize: '14px' }}>图标</span>
+            <div className="categories-dialog-field">
+              <span className="categories-dialog-label">图标</span>
               <Input
                 placeholder="请输入图标 emoji（可选）"
                 value={icon}
                 onChange={setIcon}
-                style={{ marginTop: '8px', background: '#f5f5f5', borderRadius: '8px', padding: '8px' }}
+                className="categories-dialog-input"
               />
             </div>
           </div>
@@ -158,23 +154,23 @@ export default function Categories() {
         visible={!!editingCategory}
         header="编辑分类"
         content={
-          <div style={{ padding: '8px 0' }}>
-            <div style={{ marginBottom: '12px' }}>
-              <span style={{ color: '#2C3E50', fontSize: '14px' }}>名称</span>
+          <div className="categories-dialog-form">
+            <div className="categories-dialog-field">
+              <span className="categories-dialog-label">名称</span>
               <Input
                 placeholder="请输入分类名称"
                 value={name}
                 onChange={setName}
-                style={{ marginTop: '8px', background: '#f5f5f5', borderRadius: '8px', padding: '8px' }}
+                className="categories-dialog-input"
               />
             </div>
-            <div>
-              <span style={{ color: '#2C3E50', fontSize: '14px' }}>图标</span>
+            <div className="categories-dialog-field">
+              <span className="categories-dialog-label">图标</span>
               <Input
                 placeholder="请输入图标 emoji（可选）"
                 value={icon}
                 onChange={setIcon}
-                style={{ marginTop: '8px', background: '#f5f5f5', borderRadius: '8px', padding: '8px' }}
+                className="categories-dialog-input"
               />
             </div>
           </div>
