@@ -14,6 +14,24 @@ const api = axios.create({
   },
 });
 
+// 响应拦截器：处理统一响应格式 {code, message, data}
+api.interceptors.response.use(
+  (response) => {
+    const res = response.data;
+    // 如果是统一响应格式，解包 data
+    if (res && typeof res === 'object' && 'code' in res && 'data' in res) {
+      if (res.code !== 200 && res.code !== 201) {
+        return Promise.reject(new Error(res.message || '请求失败'));
+      }
+      response.data = res.data;
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // ============ 菜品管理 ============
 export interface DishListItem {
   id: string;

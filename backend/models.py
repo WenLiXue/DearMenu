@@ -18,6 +18,7 @@ class TaskStatus(str, enum.Enum):
 class UserRole(str, enum.Enum):
     WIFE = "wife"
     HUSBAND = "husband"
+    ADMIN = "admin"
 
 
 def generate_invite_code():

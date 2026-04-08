@@ -239,8 +239,9 @@ def get_favorites(
     current_user: User = Depends(get_current_user)
 ):
     """获取所有收藏记录"""
-    favorites = db.query(Favorite).filter(
-        Favorite.family_id == current_user.family_id
+    # Favorite没有family_id，通过Dish关联查询
+    favorites = db.query(Favorite).join(Dish, Favorite.dish_id == Dish.id).filter(
+        Dish.family_id == current_user.family_id
     ).order_by(Favorite.created_at.desc()).all()
 
     result = []
@@ -310,7 +311,7 @@ def get_stats(
     """获取统计数据"""
     total_dishes = db.query(Dish).filter(Dish.family_id == current_user.family_id).count()
     total_categories = db.query(Category).filter(Category.family_id == current_user.family_id).count()
-    total_favorites = db.query(Favorite).filter(Favorite.family_id == current_user.family_id).count()
+    total_favorites = db.query(Favorite).join(Dish, Favorite.dish_id == Dish.id).filter(Dish.family_id == current_user.family_id).count()
     total_history = db.query(OrderHistory).filter(OrderHistory.family_id == current_user.family_id).count()
 
     today = date.today()

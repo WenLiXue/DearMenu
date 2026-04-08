@@ -153,7 +153,9 @@ export const getRandomDish = async (): Promise<Dish> => {
 
 // Orders
 export const createOrder = async (data: OrderCreate): Promise<Order> => {
-  const response = await api.post<ApiResponse<Order>>('/orders', data, { headers: getAuthHeaders() });
+  // Transform {dish_id} to {items: [{dish_id}]} for backend API
+  const payload = { items: [{ dish_id: data.dish_id }] };
+  const response = await api.post<ApiResponse<Order>>('/orders', payload, { headers: getAuthHeaders() });
   return response.data as unknown as Order;
 };
 
@@ -173,7 +175,7 @@ export const updateOrderStatus = async (id: string, data: OrderStatusUpdate): Pr
 };
 
 export const cancelOrder = async (id: string): Promise<void> => {
-  await api.delete(`/orders/${id}`, { headers: getAuthHeaders() });
+  await api.post(`/orders/${id}/cancel`, {}, { headers: getAuthHeaders() });
 };
 
 export const getPendingOrders = async (): Promise<Order[]> => {

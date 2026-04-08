@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Notification } from '../types';
-import * as api from '../api';
+import * as notificationsApi from '../api/notifications';
 
 interface NotificationState {
   notifications: Notification[];
@@ -22,7 +22,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   fetchNotifications: async () => {
     set({ isLoading: true });
     try {
-      const notifications = await api.getNotifications();
+      const notifications = await notificationsApi.getNotifications();
       set({ notifications, isLoading: false });
     } catch {
       set({ isLoading: false });
@@ -30,11 +30,11 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   },
 
   sendNotification: async (data) => {
-    await api.sendNotification(data);
+    await notificationsApi.sendNotification(data);
   },
 
   markAsRead: async (id) => {
-    await api.markAsRead(id);
+    await notificationsApi.markAsRead(id);
     set((state) => ({
       notifications: state.notifications.map(n => n.id === id ? { ...n, is_read: true } : n),
       unreadCount: Math.max(0, state.unreadCount - 1)
@@ -42,7 +42,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   },
 
   markAllAsRead: async () => {
-    await api.markAllAsRead();
+    await notificationsApi.markAllAsRead();
     set((state) => ({
       notifications: state.notifications.map(n => ({ ...n, is_read: true })),
       unreadCount: 0
@@ -50,7 +50,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   },
 
   deleteNotification: async (id) => {
-    await api.deleteNotification(id);
+    await notificationsApi.deleteNotification(id);
     set((state) => {
       const notification = state.notifications.find(n => n.id === id);
       return {
@@ -64,7 +64,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
 
   fetchUnreadCount: async () => {
     try {
-      const count = await api.getUnreadCount();
+      const count = await notificationsApi.getUnreadCount();
       set({ unreadCount: count });
     } catch {
       // 忽略错误，保持当前状态

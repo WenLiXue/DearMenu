@@ -13,6 +13,7 @@ export default function Dishes() {
   const { categories, fetchCategories } = useCategoryStore();
   const { createOrder } = useOrderStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedDishes, setSelectedDishes] = useState<string[]>([]);
   const tagsScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,6 +80,37 @@ export default function Dishes() {
 
   const handleCategoryChange = (categoryId: string | null) => {
     setSelectedCategory(categoryId);
+    setSelectedDishes([]);
+  };
+
+  const toggleDishSelection = (dishId: string) => {
+    setSelectedDishes(prev =>
+      prev.includes(dishId)
+        ? prev.filter(id => id !== dishId)
+        : [...prev, dishId]
+    );
+  };
+
+  const handleBatchOrder = () => {
+    if (selectedDishes.length === 0) return;
+    const dishNames = selectedDishes.map(id => dishes.find(d => d.id === id)?.name).join('、');
+    Dialog.confirm({
+      content: `确定要点 "${dishNames}" ${selectedDishes.length}道菜吗？`,
+      confirmText: '点餐',
+      cancelText: '取消',
+      onConfirm: async () => {
+        try {
+          // 批量点餐：逐个创建订单
+          for (const dishId of selectedDishes) {
+            await createOrder({ dish_id: dishId });
+          }
+          Toast.show({ content: `已点${selectedDishes.length}道菜！`, icon: 'success' });
+          setSelectedDishes([]);
+        } catch {
+          Toast.show({ content: '点餐失败啦', icon: 'fail' });
+        }
+      },
+    });
   };
 
   return (
@@ -140,7 +172,13 @@ export default function Dishes() {
           dishes.map((dish) => (
             <Card key={dish.id} className="dish-card">
               <div className="dish-card-inner">
-                <div className="dish-info">
+                <div
+                  onClick={() => toggleDishSelection(dish.id)}
+                  style={{ marginRight: '8px', fontSize: '20px', cursor: 'pointer', opacity: selectedDishes.includes(dish.id) ? 1 : 0.3 }}
+                >
+                  {selectedDishes.includes(dish.id) ? '✅' : '⬜'}
+                </div>
+                <div className="dish-info" style={{ flex: 1 }}>
                   <h3 style={{ margin: '0 0 4px', color: '#333', fontSize: '15px', fontWeight: 600 }}>{dish.name}</h3>
                   <div style={{ display: 'flex', gap: '2px', marginBottom: '6px' }}>
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -175,6 +213,26 @@ export default function Dishes() {
           ))
         )}
       </div>
+
+      {selectedDishes.length > 0 && (
+        <div style={{
+          position: 'fixed',
+          bottom: '70px',
+          left: 0,
+          right: 0,
+          background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)',
+          color: '#FFF',
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          zIndex: 100,
+          boxShadow: '0 -2px 10px rgba(0,0,0,0.1)'
+        }}>
+          <span>已选 {selectedDishes.length} 道菜</span>
+          <Button size="small" color="light" onClick={handleBatchOrder}>点餐</Button>
+        </div>
+      )}
 
       {dishTotal > dishPageSize && (
         <div style={{ padding: '16px', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>

@@ -45,6 +45,48 @@ export default function Orders() {
     return `order-card order-card-${status}`;
   };
 
+  const getOrderName = (order: Order) => {
+    if (!order.dishes || order.dishes.length === 0) return '未知菜品';
+    if (order.dishes.length === 1) return order.dishes[0].name;
+    if (order.dishes.length === 2) return `${order.dishes[0].name}、${order.dishes[1].name}`;
+    return `${order.dishes[0].name}等${order.dishes.length}道菜`;
+  };
+
+  const handleViewDetail = (order: Order) => {
+    const dishList = order.dishes?.map(d => `• ${d.name}`).join('\n') || '无';
+    Dialog.confirm({
+      title: '订单详情',
+      content: (
+        <div style={{ textAlign: 'left' }}>
+          <div style={{ marginBottom: '8px' }}>
+            <strong>状态：</strong>{statusConfig[order.status]?.label}
+          </div>
+          <div style={{ marginBottom: '8px' }}>
+            <strong>菜品：</strong>
+          </div>
+          <div style={{ paddingLeft: '12px', whiteSpace: 'pre-line' }}>
+            {dishList}
+          </div>
+          <div style={{ marginTop: '8px' }}>
+            <strong>时间：</strong>{formatTime(order.created_at)}
+          </div>
+          {order.notes && (
+            <div style={{ marginTop: '8px' }}>
+              <strong>备注：</strong>{order.notes}
+            </div>
+          )}
+        </div>
+      ),
+      confirmText: order.status === 'pending' ? '取消订单' : '关闭',
+      cancelText: '返回',
+      onConfirm: () => {
+        if (order.status === 'pending') {
+          handleCancel(order);
+        }
+      },
+    });
+  };
+
   return (
     <div className="page-container">
       <NavBar
@@ -82,12 +124,13 @@ export default function Orders() {
               <Card
                 key={order.id}
                 className={getOrderCardClass(order.status)}
+                onClick={() => handleViewDetail(order)}
               >
                 <div className="order-card-inner">
                   <div className="order-info">
                     <div className="order-header">
                       <span className="order-icon">{config.icon}</span>
-                      <span className="order-dish-name">{order.dish?.name || order.dish_name || '未知菜品'}</span>
+                      <span className="order-dish-name">{getOrderName(order)}</span>
                       <Tag color={config.color} className="order-status-tag">{config.label}</Tag>
                     </div>
                     {order.notes && (

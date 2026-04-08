@@ -20,7 +20,7 @@ def get_favorites(
     current_user: User = Depends(get_current_user)
 ):
     favorites = db.query(Favorite).filter(
-        Favorite.family_id == current_user.family_id
+        Favorite.user_id == current_user.id
     )
 
     total = favorites.count()

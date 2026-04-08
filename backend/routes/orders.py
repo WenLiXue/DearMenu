@@ -477,3 +477,28 @@ def remind_order(
     )
 
     return success_response(message="催单提醒已发送")
+
+
+@router.delete("/{order_id}")
+def delete_order(
+    order_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("order:cancel"))
+):
+    """删除订单（老婆操作）- 只能删除已取消或已完成的订单"""
+    order = db.query(Order).filter(
+        Order.id == order_id,
+        Order.family_id == current_user.family_id
+    ).first()
+
+    if not order:
+        return error_response("订单不存在", code=status.HTTP_404_NOT_FOUND)
+
+    # 只能删除已取消、已完成或已拒绝的订单
+    if order.status not in [OrderStatus.CANCELLED, OrderStatus.COMPLETED, OrderStatus.REJECTED]:
+        return error_response("只能删除已取消、已完成或已拒绝的订单", code=status.HTTP_400_BAD_REQUEST)
+
+    db.delete(order)
+    db.commit()
+
+    return success_response(message="订单已删除")

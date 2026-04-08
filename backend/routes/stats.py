@@ -44,7 +44,7 @@ def get_dashboard_stats(
     # 基础统计
     total_dishes = db.query(Dish).filter(Dish.family_id == family_id).count()
     total_categories = db.query(Category).filter(Category.family_id == family_id).count()
-    total_favorites = db.query(Favorite).filter(Favorite.family_id == family_id).count()
+    total_favorites = db.query(Favorite).join(Dish, Favorite.dish_id == Dish.id).filter(Dish.family_id == family_id).count()
     total_history = db.query(OrderHistory).filter(OrderHistory.family_id == family_id).count()
 
     # 今日统计
@@ -301,9 +301,9 @@ def get_category_analysis(
         ).count()
 
         # 统计该分类下收藏数
-        favorite_count = db.query(Favorite).join(Dish).filter(
+        favorite_count = db.query(Favorite).join(Dish, Favorite.dish_id == Dish.id).filter(
             Dish.category_id == cat.id,
-            Favorite.family_id == family_id
+            Dish.family_id == family_id
         ).count()
 
         result.append(CategoryStatItem(

@@ -7,8 +7,8 @@ const getAuthHeaders = () => {
 };
 
 export const getNotifications = async (): Promise<Notification[]> => {
-  const notifications = await api.get<Notification[]>('/notifications', { headers: getAuthHeaders() });
-  return notifications;
+  const response = await api.get<{data: Notification[]}>('/notifications', { headers: getAuthHeaders() });
+  return response.data;  // interceptor returns response.data = {code, message, data: [...]}, response.data IS the data field which is the array
 };
 
 export const sendNotification = async (data: {
