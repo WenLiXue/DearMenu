@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NavBar, Toast } from 'antd-mobile';
+import { NavBar, Toast, Dialog } from 'antd-mobile';
 import { useHusbandStore } from '../../stores/husbandStore';
 import { sendCompletionMessage } from '../../api/husband';
 import HeroCard from './components/HeroCard';
@@ -24,6 +24,19 @@ export default function Husband() {
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  const handleLogout = () => {
+    Dialog.confirm({
+      content: '确定要退出登录吗？',
+      confirmText: '退出',
+      cancelText: '取消',
+      onConfirm: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      },
+    });
+  };
 
   // 分离任务状态
   const currentTask = tasks.find(t => t.status === 'cooking') || tasks.find(t => t.status === 'pending');
@@ -81,10 +94,10 @@ export default function Husband() {
         back={null}
         right={
           <span
-            onClick={() => navigate('/husband/history')}
+            onClick={handleLogout}
             style={{ color: '#FFF', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
           >
-            历史
+            退出
           </span>
         }
         style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%)', color: '#FFF' }}

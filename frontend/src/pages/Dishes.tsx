@@ -4,6 +4,7 @@ import { NavBar, Card, Button, Tag, Empty, Dialog, Toast } from 'antd-mobile';
 import { useDishStore } from '../stores/dishStore';
 import { useCategoryStore } from '../stores/categoryStore';
 import { useOrderStore } from '../stores/orderStore';
+import { createBatchOrders } from '../api';
 import type { Dish } from '../types';
 import './Dishes.css';
 
@@ -100,10 +101,8 @@ export default function Dishes() {
       cancelText: '取消',
       onConfirm: async () => {
         try {
-          // 批量点餐：逐个创建订单
-          for (const dishId of selectedDishes) {
-            await createOrder({ dish_id: dishId });
-          }
+          // 批量点餐：一次性发送所有菜品
+          await createBatchOrders(selectedDishes);
           Toast.show({ content: `已点${selectedDishes.length}道菜！`, icon: 'success' });
           setSelectedDishes([]);
         } catch {
@@ -197,7 +196,7 @@ export default function Dishes() {
                   </div>
                 </div>
                 <div className="dish-actions">
-                  <Button size="small" color="primary" onClick={() => handleOrder(dish)} className="action-btn">点餐</Button>
+                  <Button size="small" color="primary" onClick={() => handleOrder(dish)} className="action-btn action-btn-primary">点餐</Button>
                   <Button
                     size="small"
                     onClick={() => handleToggleFavorite(dish)}
@@ -230,7 +229,7 @@ export default function Dishes() {
           boxShadow: '0 -2px 10px rgba(0,0,0,0.1)'
         }}>
           <span>已选 {selectedDishes.length} 道菜</span>
-          <Button size="small" color="light" onClick={handleBatchOrder}>点餐</Button>
+          <Button size="small" onClick={handleBatchOrder} style={{ background: '#FFF', color: '#FF6B6B', border: 'none' }}>点餐</Button>
         </div>
       )}
 

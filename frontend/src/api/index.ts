@@ -39,7 +39,8 @@ const api = axios.create({
 api.interceptors.response.use(
   (response: AxiosResponse<ApiResponse<any>>) => {
     const { code, message } = response.data;
-    if (code !== 200) {
+    // 2xx 状态码都视为成功（包括 200, 201, 204 等）
+    if (code < 200 || code >= 300) {
       throw new ApiError(code, message || '请求失败');
     }
     // 返回完整响应数据（包括 data, total, page 等）
@@ -48,7 +49,7 @@ api.interceptors.response.use(
   (error: AxiosError<ApiResponse<any>>) => {
     if (error.response) {
       const { code, message } = error.response.data || {};
-      if (code !== 200) {
+      if (code < 200 || code >= 300) {
         throw new ApiError(code || error.response.status, message || '请求失败');
       }
     }
@@ -153,8 +154,15 @@ export const getRandomDish = async (): Promise<Dish> => {
 
 // Orders
 export const createOrder = async (data: OrderCreate): Promise<Order> => {
-  // Transform {dish_id} to {items: [{dish_id}]} for backend API
+  // Single dish: transform {dish_id} to {items: [{dish_id}]} for backend API
   const payload = { items: [{ dish_id: data.dish_id }] };
+  const response = await api.post<ApiResponse<Order>>('/orders', payload, { headers: getAuthHeaders() });
+  return response.data as unknown as Order;
+};
+
+export const createBatchOrders = async (dishIds: string[], notes?: string): Promise<Order> => {
+  // Batch order: send all dish_ids in one request, backend returns single order with multiple items
+  const payload = { items: dishIds.map(dish_id => ({ dish_id })), notes };
   const response = await api.post<ApiResponse<Order>>('/orders', payload, { headers: getAuthHeaders() });
   return response.data as unknown as Order;
 };
