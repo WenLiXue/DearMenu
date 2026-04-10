@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NavBar, Toast, Dialog } from 'antd-mobile';
+import { Dialog, Toast } from 'antd-mobile';
 import { useHusbandStore } from '../../stores/husbandStore';
 import { sendCompletionMessage } from '../../api/husband';
-import HeroCard from './components/HeroCard';
-import PendingTasks from './components/PendingTasks';
-import ProgressBar from './components/ProgressBar';
-import QuickActions from './components/QuickActions';
-import EmptyState from './components/EmptyState';
+import TaskMissionCard from './components/TaskMissionCard';
 import {
   getGreeting,
   getAchievementText,
@@ -25,24 +21,12 @@ export default function Husband() {
     fetchTasks();
   }, []);
 
-  const handleLogout = () => {
-    Dialog.confirm({
-      content: '确定要退出登录吗？',
-      confirmText: '退出',
-      cancelText: '取消',
-      onConfirm: () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        navigate('/login');
-      },
-    });
-  };
-
-  // 分离任务状态
+  // 分离任务
   const currentTask = tasks.find(t => t.status === 'cooking') || tasks.find(t => t.status === 'pending');
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const completedCount = tasks.filter(t => t.status === 'completed').length;
   const totalCount = tasks.length;
+  const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const greeting = getGreeting();
   const achievementText = getAchievementText(completedCount, totalCount);
@@ -55,11 +39,10 @@ export default function Husband() {
     try {
       await completeTask(id);
       Toast.show({
-        content: '太棒了！🎉',
+        content: '🎉 完成啦！老婆会超开心的！',
         icon: 'success',
-        duration: 1500
+        duration: 2000
       });
-      // 自动发送通知
       try {
         await sendCompletionMessage(id);
       } catch (e) {
@@ -82,88 +65,149 @@ export default function Husband() {
   };
 
   const handleLazy = () => {
-    beLazy();
-    setLazyText(getLazyResponse());
-    setShowLazyResponse(true);
-    setTimeout(() => setShowLazyResponse(false), 2500);
+    Dialog.confirm({
+      content: '确定要偷懒吗？老婆会收到通知哦～',
+      confirmText: '就是不想做',
+      cancelText: '算了再做',
+      onConfirm: () => {
+        beLazy();
+        setLazyText(getLazyResponse());
+        setShowLazyResponse(true);
+        setTimeout(() => setShowLazyResponse(false), 3000);
+      },
+    });
   };
 
   return (
     <div className="husband-page">
-      <NavBar
-        back={null}
-        right={
-          <span
-            onClick={handleLogout}
-            style={{ color: '#FFF', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
-          >
-            退出
-          </span>
-        }
-        style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #6EE7DF 100%)', color: '#FFF' }}
-      >
-        老公端
-      </NavBar>
-
-      <div className="husband-content">
-        {/* 问候区 */}
-        <div className="greeting-section">
-          <div className="greeting-emoji">{greeting.emoji}</div>
-          <h1 className="greeting-title">大厨，晚上好</h1>
-          <p className="greeting-subtitle">{greeting.text}</p>
+      {/* 顶部区域 */}
+      <header className="husband-header">
+        <div className="header-left">
+          <span className="header-avatar">👨‍🍳</span>
+          <span className="header-title">大厨</span>
         </div>
+        <div className="header-center">
+          <span className="header-greeting">{greeting.emoji} {greeting.text}</span>
+        </div>
+        <div className="header-right">
+          <button className="header-exit-btn" onClick={() => {
+            Dialog.confirm({
+              content: '确定要退出登录吗？',
+              confirmText: '退出',
+              cancelText: '取消',
+              onConfirm: () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                navigate('/login');
+              },
+            });
+          }}>
+            🚪
+          </button>
+        </div>
+      </header>
 
-        {/* 主任务区 */}
+      {/* 主内容区 */}
+      <main className="husband-main">
+        {/* 当前任务卡片 */}
         {currentTask ? (
-          <HeroCard
-            task={currentTask}
-            onStart={handleStart}
-            onComplete={handleComplete}
-            isPrimary={true}
-          />
+          <section className="task-section">
+            <TaskMissionCard
+              task={currentTask}
+              onStart={handleStart}
+              onComplete={handleComplete}
+            />
+          </section>
         ) : tasks.length === 0 ? (
-          <EmptyState onRandomCook={handleRandom} />
+          <section className="empty-section">
+            <div className="empty-icon">🍽️</div>
+            <h2 className="empty-title">今天没有任务啦</h2>
+            <p className="empty-desc">老婆还没下单哦～</p>
+            <button className="empty-btn" onClick={handleRandom}>
+              🎲 随机做一道
+            </button>
+          </section>
         ) : (
-          <div className="all-done-section">
+          <section className="all-done-section">
             <div className="all-done-icon">🎉</div>
-            <h2 className="all-done-title">今天全部完成啦！</h2>
-            <p className="all-done-subtitle">大厨辛苦了～休息一下吧</p>
-          </div>
+            <h2 className="all-done-title">今日任务全部完成！</h2>
+            <p className="all-done-desc">大厨辛苦了～</p>
+          </section>
         )}
 
-        {/* 进度条 */}
+        {/* 进度区 */}
         {totalCount > 0 && (
-          <ProgressBar
-            completed={completedCount}
-            total={totalCount}
-            achievementText={achievementText}
-          />
+          <section className="progress-section">
+            <div className="progress-header">
+              <div className="progress-left">
+                <span className="progress-heart">❤️</span>
+                <span className="progress-text">已为老婆完成</span>
+                <span className="progress-count">{completedCount}</span>
+                <span className="progress-text">道料理</span>
+              </div>
+              <div className="progress-percent">{progress}%</div>
+            </div>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+            {achievementText && (
+              <p className="progress-tip">{achievementText}</p>
+            )}
+          </section>
         )}
 
-        {/* 待做任务 */}
+        {/* 待办列表 */}
         {pendingTasks.length > 1 && (
-          <PendingTasks
-            tasks={pendingTasks.slice(1)}
-            onStart={handleStart}
-          />
-        )}
-
-        {/* 偷懒反馈 */}
-        {showLazyResponse && (
-          <div className="lazy-feedback">
-            <p className="lazy-feedback-text">{lazyText}</p>
-          </div>
+          <section className="todo-section">
+            <h3 className="todo-title">📋 待办任务</h3>
+            <div className="todo-list">
+              {pendingTasks.slice(0, 3).map((task) => (
+                <div key={task.id} className="todo-item">
+                  <span className="todo-icon">🍽️</span>
+                  <span className="todo-name">{task.dish.name}</span>
+                  <button
+                    className="todo-btn"
+                    onClick={() => handleStart(task.id)}
+                  >
+                    去做
+                  </button>
+                </div>
+              ))}
+              {pendingTasks.length > 3 && (
+                <div className="todo-more">
+                  还有 {pendingTasks.length - 3} 道菜...
+                </div>
+              )}
+            </div>
+          </section>
         )}
 
         {/* 快捷操作 */}
         {totalCount > 0 && (
-          <QuickActions
-            onRandom={handleRandom}
-            onFavorite={handleFavorite}
-            onLazy={handleLazy}
-          />
+          <section className="action-section">
+            <button className="action-btn" onClick={handleRandom}>
+              <span className="action-icon">🎲</span>
+              <span className="action-text">随机</span>
+            </button>
+            <button className="action-btn favorite" onClick={handleFavorite}>
+              <span className="action-icon">❤️</span>
+              <span className="action-text">她爱吃</span>
+            </button>
+            <button className="action-btn lazy" onClick={handleLazy}>
+              <span className="action-icon">💤</span>
+              <span className="action-text">偷懒</span>
+            </button>
+          </section>
         )}
-      </div>
+      </main>
+
+      {/* 偷懒反馈 */}
+      {showLazyResponse && (
+        <div className="lazy-toast">
+          <span className="lazy-toast-icon">💤</span>
+          <span className="lazy-toast-text">{lazyText}</span>
+        </div>
+      )}
     </div>
   );
 }

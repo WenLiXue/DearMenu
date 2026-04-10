@@ -68,13 +68,8 @@ export const useHusbandStore = create<HusbandState>((set, get) => ({
   completeTask: async (taskId: string) => {
     try {
       await api.updateTaskStatus(taskId, 'completed');
-      const task = get().tasks.find((t) => t.id === taskId);
-      set((state) => ({
-        tasks: state.tasks.map((t) =>
-          t.id === taskId ? { ...t, status: 'completed', completed_at: new Date().toISOString() } : t
-        ),
-        history: task ? [{ ...task, status: 'completed', completed_at: new Date().toISOString() }, ...state.history] : state.history,
-      }));
+      // 重新获取任务列表，确保显示同订单的其他待制作菜品
+      await get().fetchTasks();
     } catch (error: any) {
       set({ error: error.response?.data?.detail || '更新状态失败' });
     }

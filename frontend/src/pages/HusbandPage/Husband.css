@@ -1,71 +1,164 @@
-/* Husband 老公端 v4.0 - 情感化设计 "为她做一顿饭" */
+/* Husband 老公端 v5.0 - 游戏化任务驱动系统 */
+/* 核心约束：100vh 无滚动、flex布局、紧凑设计 */
+
+* {
+  box-sizing: border-box;
+}
 
 .husband-page {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
-  background: linear-gradient(180deg, #f8fffe 0%, #f0faf9 100%);
+  height: 100%;
+  background: linear-gradient(180deg, #0A1628 0%, #0F1E3C 50%, #0A1628 100%);
+  color: #fff;
+  overflow: hidden;
 }
 
-.husband-content {
+/* ==================== 顶部区域 ==================== */
+
+.husband-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+  height: 56px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-avatar {
+  font-size: 24px;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #00D4AA;
+}
+
+.header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.header-greeting {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-exit-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-exit-btn:active {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(0.95);
+}
+
+/* ==================== 主内容区 ==================== */
+
+.husband-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
-  padding: var(--space-xl);
+  gap: 10px;
+  padding: 10px 14px;
+  padding-bottom: 70px; /* 足够避免被TabBar覆盖 */
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  min-height: 0;
 }
 
-/* ==================== 问候区 ==================== */
+.husband-main::-webkit-scrollbar {
+  display: none;
+}
 
-.greeting-section {
+/* ==================== 任务区 ==================== */
+
+.task-section {
+  flex-shrink: 0;
+}
+
+/* 空状态 */
+.empty-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   text-align: center;
-  padding: var(--space-lg) 0 var(--space-md);
+  padding: 20px;
 }
 
-.greeting-emoji {
-  font-size: 44px;
-  margin-bottom: var(--space-sm);
-  animation: float 3s ease-in-out infinite;
+.empty-icon {
+  font-size: 64px;
+  opacity: 0.6;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-.greeting-title {
-  font-size: 26px;
+.empty-title {
+  font-size: 20px;
   font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 var(--space-xs);
-  letter-spacing: -0.5px;
-}
-
-.greeting-subtitle {
-  font-size: 15px;
-  color: var(--text-secondary);
+  color: #fff;
   margin: 0;
 }
 
-/* ==================== 主任务卡片 ==================== */
+.empty-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
 
-/* 主卡片现在在 HeroCard.css 中 */
+.empty-btn {
+  margin-top: 16px;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #00D4AA 0%, #00A896 100%);
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0A1628;
+  cursor: pointer;
+}
 
-/* ==================== 全部完成区 ==================== */
-
+/* 全部完成 */
 .all-done-section {
-  text-align: center;
-  padding: var(--space-3xl) var(--space-xl);
-  background: linear-gradient(135deg, rgba(78, 205, 196, 0.08) 0%, rgba(110, 231, 223, 0.05) 100%);
-  border-radius: 24px;
-  border: 1px solid rgba(78, 205, 196, 0.15);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 142, 142, 0.05) 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  padding: 40px 20px;
 }
 
 .all-done-icon {
   font-size: 64px;
-  margin-bottom: var(--space-lg);
-  animation: bounce 0.6s var(--ease-out);
+  animation: bounce 0.6s ease-out;
 }
 
 @keyframes bounce {
@@ -76,99 +169,266 @@
 
 .all-done-title {
   font-size: 22px;
+  font-weight: 800;
+  color: #FF6B6B;
+  margin: 0;
+}
+
+.all-done-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+/* ==================== 进度区 ==================== */
+
+.progress-section {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.progress-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.progress-heart {
+  font-size: 16px;
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.progress-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.progress-count {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FF6B6B;
+}
+
+.progress-percent {
+  font-size: 18px;
   font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 var(--space-sm);
+  color: #00D4AA;
 }
 
-.all-done-subtitle {
-  font-size: 15px;
-  color: var(--text-secondary);
-  margin: 0;
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-/* ==================== 偷懒反馈 ==================== */
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF6B6B 0%, #FF8E8E 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
 
-.lazy-feedback {
+.progress-tip {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
   text-align: center;
-  padding: var(--space-xl);
-  animation: bounceIn 0.5s var(--ease-out);
 }
 
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* ==================== 待办列表 ==================== */
+
+.todo-section {
+  flex-shrink: 0;
 }
 
-.lazy-feedback-text {
-  font-size: 22px;
+.todo-title {
+  font-size: 12px;
   font-weight: 600;
-  color: var(--teal-color);
-  margin: 0;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* ==================== 空状态 ==================== */
-
-.husband-empty {
+.todo-list {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+
+.todo-item {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: var(--space-3xl);
-  text-align: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.todo-icon {
+  font-size: 16px;
+}
+
+.todo-name {
   flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
 }
 
-.husband-empty-icon {
-  font-size: 64px;
-  margin-bottom: var(--space-xl);
-  opacity: 0.6;
-}
-
-.husband-empty-title {
-  font-size: 20px;
+.todo-btn {
+  padding: 5px 12px;
+  background: rgba(0, 212, 170, 0.2);
+  border: 1px solid rgba(0, 212, 170, 0.3);
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--space-sm);
+  color: #00D4AA;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.husband-empty-desc {
-  font-size: 15px;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-xl);
+.todo-btn:active {
+  background: rgba(0, 212, 170, 0.3);
+  transform: scale(0.95);
 }
 
-.husband-empty-btn {
-  border-radius: 24px !important;
-  padding: 12px 32px !important;
-  font-weight: 600 !important;
+.todo-more {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  padding: 6px;
 }
 
 /* ==================== 快捷操作 ==================== */
 
-.quick-actions {
+.action-section {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
   margin-top: auto;
-  padding-top: var(--space-lg);
+  padding-top: 4px;
 }
 
-.quick-actions .quick-action-btn {
-  min-height: 80px;
-  border-radius: 20px !important;
+.action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.quick-actions .quick-action-icon {
-  font-size: 26px;
+.action-btn:active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(0.96);
 }
 
-.quick-actions .quick-action-label {
-  font-size: 12px;
+.action-btn.favorite {
+  background: rgba(255, 107, 107, 0.15);
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.action-btn.favorite .action-text {
+  color: #FF6B6B;
+}
+
+.action-btn.lazy {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.action-btn.lazy .action-text {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.action-icon {
+  font-size: 20px;
+}
+
+.action-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #00D4AA;
+}
+
+/* ==================== 偷懒反馈 ==================== */
+
+.lazy-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 22, 40, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 32px 48px;
+  animation: fadeInUp 0.4s ease-out;
+  z-index: 1000;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.lazy-toast-icon {
+  font-size: 48px;
+  animation: swing 1s ease-in-out infinite;
+}
+
+@keyframes swing {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+
+.lazy-toast-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ==================== 滚动条隐藏 ==================== */
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }

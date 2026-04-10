@@ -83,18 +83,28 @@ export interface Conversation {
 // 订单状态
 export type OrderStatus = 'pending' | 'cooking' | 'completed' | 'cancelled';
 
+// 订单项
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  dish_id: string;
+  status: 'pending' | 'cooking' | 'completed' | 'cancelled';
+  notes?: string;
+  cooked_at?: string;
+  dish?: Dish;
+}
+
 // 订单
 export interface Order {
   id: string;
   user_id: string;
   family_id: string;
-  dish_id: string;
   status: OrderStatus;
   notes?: string;
   created_at: string;
-  cooked_at?: string;
-  dish?: Dish;
-  dish_name?: string;  // API may return dish_name directly
+  completed_at?: string;
+  items?: OrderItem[];  // 订单包含的菜品项
+  dishes?: Dish[];      // 菜品列表（用于兼容）
 }
 
 // 创建订单请求

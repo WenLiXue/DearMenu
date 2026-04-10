@@ -18,41 +18,47 @@ def get_today_tasks(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("husband"))
 ):
-    """获取今日任务 - 从订单表查询"""
+    """获取今日任务 - 从订单表查询，包含所有状态（pending, cooking, completed）"""
     today = date.today()
     today_start = datetime.combine(today, datetime.min.time())
     today_end = datetime.combine(today, datetime.max.time())
 
-    # Query pending order items from the new Order system
+    # Query all order items from today (包括 completed)
     orders = db.query(Order).filter(
         Order.family_id == current_user.family_id,
         Order.created_at >= today_start,
         Order.created_at <= today_end,
-        Order.status == OrderStatus.PENDING
+        Order.status.in_([OrderStatus.PENDING, OrderStatus.COOKING, OrderStatus.COMPLETED])
     ).all()
 
     result = []
     for order in orders:
         for item in order.items:
-            if item.status == OrderItemStatus.PENDING:
-                dish = db.query(Dish).filter(Dish.id == item.dish_id).first()
-                if dish:
-                    result.append(HusbandTaskResponse(
-                        id=str(item.id),  # Use order_item id as task id
-                        dish_id=item.dish_id,
-                        status='pending',
-                        created_at=order.created_at,
-                        cooked_at=None,
-                        dish=DishResponse(
-                            id=dish.id,
-                            user_id=dish.user_id,
-                            category_id=dish.category_id,
-                            name=dish.name,
-                            tags=dish.tags or [],
-                            rating=dish.rating,
-                            created_at=dish.created_at
-                        )
-                    ))
+            dish = db.query(Dish).filter(Dish.id == item.dish_id).first()
+            if dish:
+                # 返回所有状态的任务
+                status_value = 'pending'
+                if item.status == OrderItemStatus.COOKING:
+                    status_value = 'cooking'
+                elif item.status == OrderItemStatus.COMPLETED:
+                    status_value = 'completed'
+
+                result.append(HusbandTaskResponse(
+                    id=str(item.id),
+                    dish_id=item.dish_id,
+                    status=status_value,
+                    created_at=order.created_at,
+                    cooked_at=item.cooked_at,
+                    dish=DishResponse(
+                        id=dish.id,
+                        user_id=dish.user_id,
+                        category_id=dish.category_id,
+                        name=dish.name,
+                        tags=dish.tags or [],
+                        rating=dish.rating,
+                        created_at=dish.created_at
+                    )
+                ))
 
     return list_response(data=[r.model_dump(mode='json') for r in result], total=len(result))
 
@@ -88,6 +94,22 @@ def update_task_status(
     item.status = new_status
     if new_status == OrderItemStatus.COMPLETED:
         item.cooked_at = datetime.now()
+
+        # 记录到历史表
+        order_history = OrderHistory(
+            user_id=order.user_id,
+            family_id=order.family_id,
+            dish_id=item.dish_id,
+            status=TaskStatus.COMPLETED,
+            cooked_at=item.cooked_at
+        )
+        db.add(order_history)
+
+        # 检查是否所有订单项都完成了，如果是则更新父订单状态
+        all_items = db.query(OrderItem).filter(OrderItem.order_id == order.id).all()
+        if all(item.status == OrderItemStatus.COMPLETED for item in all_items):
+            order.status = OrderStatus.COMPLETED
+            order.completed_at = datetime.now()
 
     db.commit()
     db.refresh(item)
