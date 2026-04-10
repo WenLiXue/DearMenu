@@ -1,5 +1,7 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { TabBar } from 'antd-mobile';
+import { useEffect } from 'react';
+import { useOrderStore } from '../stores/orderStore';
 import './Layout.css';
 
 const TAB_BAR_ROUTES = ['/home', '/dishes', '/orders', '/favorites', '/profile'];
@@ -15,12 +17,22 @@ const tabs = [
 export default function WifeLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { orders, fetchOrders } = useOrderStore();
 
-  // TabBar 只在主要页面显示，二级页面通过 location.state?.hideTabBar 隐藏
   const showTabBar = TAB_BAR_ROUTES.includes(location.pathname) && !location.state?.hideTabBar;
 
+  // 定期同步订单状态
+  useEffect(() => {
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 计算待处理订单数量
+  const activeOrderCount = orders.filter(o => o.status === 'pending' || o.status === 'cooking').length;
+
   return (
-    <div className="layout-container">
+    <div className="layout-container wife-layout">
       <div className="layout-content">
         <Outlet />
       </div>
@@ -30,7 +42,7 @@ export default function WifeLayout() {
           safeArea
           activeKey={location.pathname}
           onChange={(key) => navigate(key)}
-          className="layout-tabbar"
+          className="layout-tabbar wife-tabbar"
         >
           {tabs.map((tab) => (
             <TabBar.Item
@@ -38,6 +50,7 @@ export default function WifeLayout() {
               title={tab.title}
               icon={<span className="tab-icon">{tab.icon}</span>}
               activeIcon={<span className="tab-icon tab-icon-active">{tab.icon}</span>}
+              badge={tab.key === '/orders' && activeOrderCount > 0 ? activeOrderCount : 0}
             />
           ))}
         </TabBar>

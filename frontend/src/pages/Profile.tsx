@@ -1,14 +1,26 @@
 import { useNavigate } from 'react-router-dom';
-import { NavBar, Button, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { useAuthStore } from '../stores/authStore';
-import { generateInviteCode } from '../api';
-import { useState } from 'react';
+import { generateInviteCode, getFamilyInfo } from '../api';
+import { useState, useEffect } from 'react';
 import './Profile.css';
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, logout, familyId } = useAuthStore();
-  const [inviteCode, setInviteCode] = useState(familyId || '');
+  const [inviteCode, setInviteCode] = useState('');
+
+  useEffect(() => {
+    if (familyId) {
+      getFamilyInfo(familyId).then((family) => {
+        setInviteCode(family.invite_code);
+      }).catch(() => {
+        generateInviteCode().then((result) => {
+          setInviteCode(result.invite_code);
+        });
+      });
+    }
+  }, [familyId]);
 
   const handleCopyInviteCode = () => {
     if (inviteCode) {
@@ -34,97 +46,74 @@ export default function Profile() {
 
   const isWife = user?.role === 'wife';
 
+  const menuItems = [
+    { icon: '📜', text: '点餐历史', path: '/history', state: { hideTabBar: true } },
+    { icon: '📂', text: '分类管理', path: '/categories', state: { hideTabBar: true } },
+    { icon: '🎲', text: '随机推荐', path: '/random' },
+    { icon: '❤️', text: '我的收藏', path: '/favorites' },
+  ];
+
   return (
-    <div className="page-container">
-      <NavBar
-        back={null}
-        style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-light)' }}
-      >
-        我的
-      </NavBar>
-
-      <div className="profile-content">
-        {/* 用户信息 */}
-        <div className="profile-header">
-          <div className={`profile-avatar ${isWife ? '' : 'husband'}`}>
-            {isWife ? '👰' : '👨‍🍳'}
-          </div>
-          <h2 className="profile-name">{user?.username}</h2>
-          <p className="profile-role">{isWife ? '点餐决策者' : '美食制作者'}</p>
+    <div className="profile-page">
+      {/* 顶部用户卡片 */}
+      <header className="profile-header">
+        <div className={`profile-avatar ${isWife ? '' : 'husband'}`}>
+          {isWife ? '👰' : '👨‍🍳'}
         </div>
+        <h2 className="profile-name">{user?.username}</h2>
+        <p className="profile-role">{isWife ? '点餐决策者' : '美食制作者'}</p>
+      </header>
 
-        {/* 家庭信息 */}
-        {user?.role === 'wife' && (
-          <div className="family-section">
-            <p className="family-title">家庭邀请码</p>
-            <div className="family-code-row">
-              <div>
-                <p className="family-code">{inviteCode || '加载中...'}</p>
-                <p className="family-code-label">分享给另一半，加入家庭</p>
-              </div>
-              <div className="invite-code-actions">
-                <Button
-                  size="small"
-                  className="invite-code-btn"
-                  onClick={handleCopyInviteCode}
-                >
-                  复制
-                </Button>
-                <Button
-                  size="small"
-                  className="invite-code-btn-regenerate"
-                  onClick={handleRegenerateCode}
-                >
-                  重新生成
-                </Button>
-              </div>
+      {/* 邀请码区域 - 仅老婆端显示 */}
+      {isWife && (
+        <div className="invite-section">
+          <div className="invite-card">
+            <div className="invite-info">
+              <span className="invite-label">家庭邀请码</span>
+              <span className="invite-code">{inviteCode || '加载中...'}</span>
+            </div>
+            <div className="invite-actions">
+              <button className="invite-btn" onClick={handleCopyInviteCode}>
+                复制
+              </button>
+              <button className="invite-btn" onClick={handleRegenerateCode}>
+                重新生成
+              </button>
             </div>
           </div>
-        )}
-
-        {/* 历史记录 */}
-        <div className="history-section">
-          <div className="history-item" onClick={() => navigate('/history', { state: { hideTabBar: true } })}>
-            <div className="history-item-left">
-              <span className="history-item-icon">📜</span>
-              <p className="history-item-text">点餐历史</p>
-            </div>
-            <span className="history-item-arrow">›</span>
-          </div>
         </div>
+      )}
 
-        {/* 功能菜单 */}
+      {/* 功能菜单 */}
+      <main className="profile-main">
         <div className="menu-section">
-          <div className="menu-item" onClick={() => navigate('/categories', { state: { hideTabBar: true } })}>
-            <div className="menu-item-left">
-              <span className="menu-item-icon">📂</span>
-              <p className="menu-item-text">分类管理</p>
+          {menuItems.map((item, index) => (
+            <div
+              key={index}
+              className="menu-item"
+              onClick={() => navigate(item.path, { state: item.state })}
+            >
+              <div className="menu-item-left">
+                <span className="menu-item-icon">{item.icon}</span>
+                <span className="menu-item-text">{item.text}</span>
+              </div>
+              <span className="menu-item-arrow">›</span>
             </div>
-            <span className="menu-item-arrow">›</span>
-          </div>
-          <div className="menu-item" onClick={() => navigate('/random')}>
-            <div className="menu-item-left">
-              <span className="menu-item-icon">🎲</span>
-              <p className="menu-item-text">随机推荐</p>
-            </div>
-            <span className="menu-item-arrow">›</span>
-          </div>
+          ))}
         </div>
 
         {/* 退出登录 */}
-        <Button
-          block
-          className="logout-btn"
-          onClick={handleLogout}
-        >
-          退出登录
-        </Button>
+        <div className="logout-section">
+          <button className="logout-btn" onClick={handleLogout}>
+            退出登录
+          </button>
+        </div>
 
         {/* 版本信息 */}
         <div className="version-info">
-          <p className="version-text">DearMenu v2.6</p>
+          <p className="version-text">DearMenu v5.0 💕</p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

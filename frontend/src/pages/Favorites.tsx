@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { NavBar, Card, Tag, Empty, Button, Dialog, Toast } from 'antd-mobile';
+import { Dialog, Toast } from 'antd-mobile';
 import { useDishStore } from '../stores/dishStore';
 import { useNavigate } from 'react-router-dom';
+import './Favorites.css';
 
 export default function Favorites() {
   const navigate = useNavigate();
@@ -15,94 +16,117 @@ export default function Favorites() {
     fetchFavorites(page, favoritePageSize);
   };
 
-  const handleRemove = async (dishId: string) => {
+  const handleRemove = async (dishId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     Dialog.confirm({
-      content: '确定要取消收藏吗？',
-      confirmText: '取消收藏',
+      title: '💔 取消收藏',
+      content: '确定要取消收藏这道菜吗？',
+      confirmText: '就是不要了',
       cancelText: '再想想',
       onConfirm: async () => {
         try {
           await removeFavorite(dishId);
           Toast.show({ content: '已取消收藏', icon: 'success' });
-          fetchFavorites();
+          fetchFavorites(1, favoritePageSize);
         } catch {
-          Toast.show({ content: '取消失败', icon: 'fail' });
+          Toast.show({ content: '取消失败啦', icon: 'fail' });
         }
       },
     });
   };
 
-  return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
-      <NavBar
-        back="返回"
-        onBack={() => navigate('/home')}
-        style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)', color: '#FFF' }}
-      >
-        我的收藏
-      </NavBar>
+  const totalPages = Math.ceil(favoriteTotal / favoritePageSize);
 
-      <div style={{ padding: '16px' }}>
+  return (
+    <div className="favorites-page">
+      {/* 顶部导航栏 */}
+      <header className="favorites-header">
+        <div className="favorites-title">❤️ 我的收藏</div>
+        <div className="favorites-count">{favoriteTotal} 道收藏</div>
+      </header>
+
+      {/* 收藏列表 */}
+      <main className="favorites-main">
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>加载中...</div>
+          <div className="favorites-loading">
+            <span className="loading-icon">🔮</span>
+            <p>马上就好啦~</p>
+          </div>
         ) : favorites.length === 0 ? (
-          <Empty description="暂无收藏" />
+          <div className="favorites-empty">
+            <div className="empty-icon">❤️</div>
+            <p className="empty-title">还没有收藏呢</p>
+            <p>去菜单页收藏喜欢的菜品吧~</p>
+            <button onClick={() => navigate('/dishes')}>去逛菜单</button>
+          </div>
         ) : (
-          favorites.map((favorite) => (
-            <Card
-              key={favorite.id}
-              style={{ borderRadius: '12px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
-            >
-              <div style={{ padding: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: '0 0 4px', color: '#2C3E50' }}>{favorite.name || `菜品 #${favorite.id}`}</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <div style={{ display: 'flex', gap: '2px' }}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span key={star} style={{ color: star <= favorite.rating ? '#FFE66D' : '#ddd', fontSize: '14px' }}>
-                            ★
-                          </span>
+          <div className="favorites-list">
+            {favorites.map((favorite) => (
+              <div
+                key={favorite.id}
+                className="favorite-card"
+                onClick={() => navigate('/dishes')}
+              >
+                <div className="favorite-card-header">
+                  <div className="favorite-card-info">
+                    <span className="favorite-icon">🍽️</span>
+                    <div>
+                      <div className="favorite-name">{favorite.name || `菜品 #${favorite.id}`}</div>
+                      <div className="favorite-rating">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <span key={i} className={i < favorite.rating ? 'star-filled' : 'star-empty'}>★</span>
                         ))}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {favorite.tags && favorite.tags.slice(0, 2).map((tag) => (
-                        <Tag key={tag} color="warning">{tag}</Tag>
-                      ))}
-                    </div>
                   </div>
-                  <Button size="small" color="danger" onClick={() => handleRemove(favorite.id)}>
-                    取消收藏
-                  </Button>
+                  <button
+                    className="favorite-remove-btn"
+                    onClick={(e) => handleRemove(favorite.id, e)}
+                  >
+                    取消
+                  </button>
                 </div>
-              </div>
-            </Card>
-          ))
-        )}
-      </div>
 
-      {favoriteTotal > favoritePageSize && (
-        <div style={{ padding: '16px', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>
-          <Button
-            size="small"
-            disabled={favoritePage <= 1}
-            onClick={() => handlePageChange(favoritePage - 1)}
-          >
-            上一页
-          </Button>
-          <span style={{ color: '#666', fontSize: '13px' }}>
-            第 {favoritePage} / {Math.ceil(favoriteTotal / favoritePageSize)} 页
-          </span>
-          <Button
-            size="small"
-            disabled={favoritePage >= Math.ceil(favoriteTotal / favoritePageSize)}
-            onClick={() => handlePageChange(favoritePage + 1)}
-          >
-            下一页
-          </Button>
-        </div>
-      )}
+                <div className="favorite-tags">
+                  {favorite.tags && favorite.tags.slice(0, 2).map((tag) => (
+                    <span key={tag} className="favorite-tag">{tag}</span>
+                  ))}
+                </div>
+
+                {favorite.category && (
+                  <div className="favorite-card-footer">
+                    <span className="favorite-category">{favorite.category.icon} {favorite.category.name}</span>
+                    <span className="favorite-action-text">点击查看详情 ›</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 分页 */}
+        {favoriteTotal > favoritePageSize && (
+          <div className="favorites-pagination">
+            <button
+              className="pagination-btn"
+              disabled={favoritePage <= 1}
+              onClick={() => handlePageChange(favoritePage - 1)}
+            >
+              ‹ 上一页
+            </button>
+            <span className="pagination-info">
+              {favoritePage} / {totalPages}
+            </span>
+            <button
+              className="pagination-btn"
+              disabled={favoritePage >= totalPages}
+              onClick={() => handlePageChange(favoritePage + 1)}
+            >
+              下一页 ›
+            </button>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

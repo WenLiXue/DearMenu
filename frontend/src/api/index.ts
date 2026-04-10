@@ -38,6 +38,10 @@ const api = axios.create({
 // 响应拦截器 - 处理统一响应格式
 api.interceptors.response.use(
   (response: AxiosResponse<ApiResponse<any>>) => {
+    // 204 No Content 无响应体，直接返回
+    if (response.status === 204) {
+      return response;
+    }
     const { code, message } = response.data;
     // 2xx 状态码都视为成功（包括 200, 201, 204 等）
     if (code < 200 || code >= 300) {
@@ -196,6 +200,11 @@ export const notifyOrder = async (id: string): Promise<void> => {
 };
 
 // 家庭
+export const getFamilyInfo = async (familyId: string): Promise<{ id: string; invite_code: string; name?: string }> => {
+  const response = await api.get<ApiResponse<{ id: string; invite_code: string; name?: string }>>(`/families/${familyId}`, { headers: getAuthHeaders() });
+  return response.data as unknown as { id: string; invite_code: string; name?: string };
+};
+
 export const generateInviteCode = async (): Promise<{ invite_code: string }> => {
   const response = await api.post<ApiResponse<{ invite_code: string }>>('/families/generate-code', {}, { headers: getAuthHeaders() });
   return response.data as unknown as { invite_code: string };

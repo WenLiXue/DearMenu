@@ -1,166 +1,393 @@
-/* Orders 点餐历史 v3.0 - 简洁、有序 */
+/* Orders 点餐历史 v5.0 - 温馨粉嫩风格 */
 
-.orders-list {
-  padding: var(--space-xl);
+* {
+  box-sizing: border-box;
+}
+
+.orders-page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  height: 100%;
+  background: linear-gradient(180deg, #FFF5F5 0%, #FFF8F8 100%);
+  overflow: hidden;
+}
+
+/* ==================== 顶部导航栏 ==================== */
+
+.orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(232, 90, 123, 0.1);
+}
+
+.orders-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #E85A7B;
+}
+
+.orders-sync-badge {
+  font-size: 11px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orders-sync-badge.active {
+  color: #E85A7B;
+}
+
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #E85A7B;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ==================== 统计概览 ==================== */
+
+.orders-stats {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.stat-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #FFF;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 90, 123, 0.1);
+}
+
+.stat-icon {
+  font-size: 20px;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #999;
+}
+
+.stat-card.cooking .stat-value { color: #F5A623; }
+.stat-card.pending .stat-value { color: #E85A7B; }
+.stat-card.completed .stat-value { color: #4CAF50; }
+
+/* ==================== 订单列表 ==================== */
+
+.orders-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 14px 80px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* ==================== 订单卡片 ==================== */
 
 .order-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-subtle);
+  background: #FFF;
+  border-radius: 16px;
+  padding: 14px;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 12px rgba(232, 90, 123, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.order-card-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-lg);
+.order-card:active {
+  transform: scale(0.98);
 }
 
-.order-info {
-  flex: 1;
-  min-width: 0;
+.order-card.cooking {
+  border-color: rgba(245, 166, 35, 0.3);
+  background: #FFFAF5;
 }
 
-.order-header {
+.order-card.pending {
+  border-color: rgba(232, 90, 123, 0.2);
+}
+
+.order-card.completed {
+  border-color: rgba(76, 175, 80, 0.2);
+  background: #F8FFF8;
+}
+
+.order-card.cancelled {
+  opacity: 0.6;
+}
+
+.order-card-header {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 
-.order-icon {
-  font-size: 20px;
+.order-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-status-icon {
+  font-size: 18px;
 }
 
 .order-dish-name {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
 }
 
 .order-status-tag {
-  margin-left: auto;
-  font-size: 12px;
-  font-weight: 500;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 10px;
 }
 
 .order-status-tag.pending {
-  background: rgba(245, 166, 35, 0.1);
-  color: var(--accent-warning);
+  background: rgba(232, 90, 123, 0.1);
+  color: #E85A7B;
 }
 
 .order-status-tag.cooking {
-  background: rgba(240, 101, 101, 0.1);
-  color: var(--primary-color);
+  background: rgba(245, 166, 35, 0.15);
+  color: #D38C00;
 }
 
 .order-status-tag.completed {
-  background: rgba(60, 186, 178, 0.1);
-  color: var(--teal-color);
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
 }
 
 .order-status-tag.cancelled {
-  background: var(--bg-input);
-  color: var(--text-secondary);
+  background: rgba(153, 153, 153, 0.1);
+  color: #999;
 }
 
-.order-notes {
+/* 菜品项列表 */
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+}
+
+.order-item-icon {
   font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0 0 var(--space-xs);
+}
+
+.order-item-name {
+  flex: 1;
+}
+
+.order-item-status {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.order-item-status.pending {
+  background: rgba(232, 90, 123, 0.08);
+  color: #E85A7B;
+}
+
+.order-item-status.cooking {
+  background: rgba(245, 166, 35, 0.12);
+  color: #D38C00;
+}
+
+.order-item-status.completed {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+/* 底部信息 */
+.order-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid rgba(232, 90, 123, 0.08);
 }
 
 .order-time {
+  font-size: 11px;
+  color: #AAA;
+}
+
+.order-notes {
   font-size: 12px;
-  color: var(--text-placeholder);
-  margin: 0;
-}
-
-/* ==================== 操作按钮 ==================== */
-
-.order-actions {
-  display: flex;
-  gap: var(--space-sm);
-  flex-shrink: 0;
-}
-
-.order-action-btn {
-  font-size: 13px;
-  font-weight: 500;
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
-  border: none;
-  background: transparent;
-}
-
-.order-action-btn:active {
-  transform: scale(0.95);
-  opacity: 0.8;
-}
-
-.order-complete-btn {
-  background: var(--teal-color) !important;
-  color: #FFF !important;
-  border-radius: var(--radius-md) !important;
+  color: #999;
+  font-style: italic;
 }
 
 .order-cancel-btn {
-  color: var(--accent-danger);
-  background: rgba(232, 90, 90, 0.08) !important;
-  border-radius: var(--radius-md) !important;
+  font-size: 12px;
+  font-weight: 600;
+  color: #E85A7B;
+  background: rgba(232, 90, 123, 0.08);
+  border: none;
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* ==================== 情侣互动 ==================== */
-
-.order-couple-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  background: var(--bg-input);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-md);
+.order-cancel-btn:active {
+  transform: scale(0.95);
+  background: rgba(232, 90, 123, 0.15);
 }
 
-.couple-avatar-sm {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+/* ==================== 加载状态 ==================== */
+
+.orders-loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 60px 20px;
+  gap: 12px;
+}
+
+.loading-icon {
+  font-size: 32px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.orders-loading p {
+  color: #999;
+  margin: 0;
   font-size: 14px;
 }
 
-.couple-avatar-sm.wife {
-  background: var(--primary-color);
+/* ==================== 空状态 ==================== */
+
+.orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 12px;
 }
 
-.couple-avatar-sm.husband {
-  background: var(--teal-color);
+.orders-empty .empty-icon {
+  font-size: 56px;
+  opacity: 0.5;
 }
 
-.couple-order-text {
-  font-size: 13px;
-  color: var(--text-secondary);
+.orders-empty p {
+  color: #999;
   margin: 0;
+  font-size: 14px;
 }
 
-.couple-order-text strong {
-  color: var(--text-primary);
-  font-weight: 500;
+.orders-empty .empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.orders-empty button {
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #E85A7B 0%, #F06B84 100%);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFF;
+  cursor: pointer;
+}
+
+/* ==================== 弹窗内容 ==================== */
+
+.order-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 0;
+  text-align: left;
+}
+
+.order-detail-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.order-detail-dishes {
+  padding-left: 8px;
+}
+
+.order-detail-dish {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 14px;
+  color: #666;
+  border-bottom: 1px dashed rgba(232, 90, 123, 0.1);
+}
+
+.order-detail-dish:last-child {
+  border-bottom: none;
+}
+
+.order-detail-time {
+  font-size: 13px;
+  color: #999;
 }

@@ -80,3 +80,25 @@
 .husband-layout .adm-tab-bar-tab-active .tab-icon {
   color: var(--teal-color) !important;
 }
+
+/* 老婆端 TabBar 样式 */
+.wife-layout {
+  background: linear-gradient(180deg, #FFF5F5 0%, #FFF0F5 100%);
+}
+
+.wife-tabbar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-top: 1px solid rgba(232, 90, 123, 0.1) !important;
+}
+
+.wife-tabbar .adm-tab-bar-tab-active .adm-tab-bar-tab-label {
+  color: #E85A7B !important;
+}
+
+.wife-tabbar .adm-tab-bar-tab-active .tab-icon {
+  color: #E85A7B !important;
+}
+
+.wife-tabbar .adm-tab-bar-tab-active {
+  color: #E85A7B !important;
+}
