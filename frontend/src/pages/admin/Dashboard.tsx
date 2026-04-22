@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
-import { Table, Tag, Spin, Tabs } from 'antd';
+import { Table, Spin, Tabs } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { useAdminStore } from '../../stores/adminStore';
+import { formatDateTime } from '../../utils/formatTime';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const {
     stats,
     statsLoading,
@@ -28,21 +31,17 @@ export default function Dashboard() {
     fetchMonthlyStats();
     fetchTopDishes();
     fetchCategoryStats();
-  }, [fetchStats, fetchEnhancedStats, fetchWeeklyStats, fetchMonthlyStats, fetchTopDishes, fetchCategoryStats]);
+  }, []);
+
+  const goToDishes = () => navigate('/admin/dishes');
+  const goToCategories = () => navigate('/admin/categories');
+  const goToFavorites = () => navigate('/admin/favorites');
+  const goToHistory = () => navigate('/admin/history');
 
   const historyColumns = [
-    { title: '菜品', dataIndex: ['dish', 'name'], key: 'dishName' },
-    {
-      title: '状态',
-      dataIndex: 'is_completed',
-      key: 'is_completed',
-      render: (completed: boolean) => (
-        <Tag color={completed ? 'green' : 'orange'}>
-          {completed ? '已完成' : '待完成'}
-        </Tag>
-      ),
-    },
-    { title: '时间', dataIndex: 'created_at', key: 'created_at' },
+    { title: '菜品', dataIndex: 'dish_names', key: 'dish_names', ellipsis: true },
+    { title: '数量', dataIndex: 'dish_count', key: 'dish_count', width: 60 },
+    { title: '时间', dataIndex: 'created_at', key: 'created_at', render: (t: string) => formatDateTime(t) },
   ];
 
   // 渲染今日统计
@@ -256,19 +255,19 @@ export default function Dashboard() {
     <div>
       {/* 基础统计 */}
       <div className="admin-stats-grid">
-        <div className="admin-stat-card">
+        <div className="admin-stat-card" onClick={goToDishes} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-value">{stats?.total_dishes ?? 0}</div>
           <div className="admin-stat-label">菜品总数</div>
         </div>
-        <div className="admin-stat-card">
+        <div className="admin-stat-card" onClick={goToCategories} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-value">{stats?.total_categories ?? 0}</div>
           <div className="admin-stat-label">分类总数</div>
         </div>
-        <div className="admin-stat-card">
+        <div className="admin-stat-card" onClick={goToFavorites} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-value">{stats?.total_favorites ?? 0}</div>
           <div className="admin-stat-label">收藏总数</div>
         </div>
-        <div className="admin-stat-card">
+        <div className="admin-stat-card" onClick={goToHistory} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-value">{stats?.total_history ?? 0}</div>
           <div className="admin-stat-label">历史记录</div>
         </div>

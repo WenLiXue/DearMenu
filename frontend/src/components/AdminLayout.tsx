@@ -33,6 +33,7 @@ const getPageTitle = (path: string): string => {
     '/admin/favorites': '收藏管理',
     '/admin/history': '历史记录',
     '/admin/settings': '系统设置',
+    '/admin/profile': '个人信息',
   };
   return titles[path] || '管理后台';
 };
@@ -56,6 +57,8 @@ export default function AdminLayout() {
     if (key === 'logout') {
       localStorage.removeItem('token');
       navigate('/login');
+    } else if (key === 'profile') {
+      navigate('/admin/profile');
     }
   };
 

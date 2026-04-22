@@ -46,6 +46,7 @@ def get_today_tasks(
                 result.append(HusbandTaskResponse(
                     id=str(item.id),
                     dish_id=item.dish_id,
+                    order_id=str(order.id),
                     status=status_value,
                     created_at=order.created_at,
                     cooked_at=item.cooked_at,
@@ -119,6 +120,7 @@ def update_task_status(
     response = HusbandTaskResponse(
         id=str(item.id),
         dish_id=item.dish_id,
+        order_id=str(order.id),
         status=item.status.value,
         created_at=order.created_at,
         cooked_at=item.cooked_at,

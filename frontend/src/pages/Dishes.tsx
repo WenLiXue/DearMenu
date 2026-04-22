@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Dialog, Toast } from 'antd-mobile';
+import { Dialog, Toast } from 'antd-mobile';
 import { useDishStore } from '../stores/dishStore';
 import { useCategoryStore } from '../stores/categoryStore';
-import { useOrderStore } from '../stores/orderStore';
-import { createBatchOrders } from '../api';
+import { createBatchOrders, createOrder } from '../api';
 import type { Dish } from '../types';
 import './Dishes.css';
 
@@ -12,9 +11,9 @@ export default function Dishes() {
   const navigate = useNavigate();
   const { dishes, fetchDishes, addFavorite, removeFavorite, favorites, fetchFavorites, isLoading } = useDishStore();
   const { categories, fetchCategories } = useCategoryStore();
-  const { createOrder } = useOrderStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedDishes, setSelectedDishes] = useState<string[]>([]);
+  const [candidateDishes, setCandidateDishes] = useState<Dish[]>([]); // 候选池
+  const [detailDish, setDetailDish] = useState<Dish | null>(null); // 详情弹窗
 
   useEffect(() => {
     fetchCategories();
@@ -23,11 +22,28 @@ export default function Dishes() {
 
   useEffect(() => {
     fetchDishes(selectedCategory || undefined, 1, 20);
-    setSelectedDishes([]);
   }, [selectedCategory]);
 
   const isFavorited = (dishId: string) => favorites.some((f) => (f.dish_id || f.id) === dishId);
 
+  const isInCandidate = (dishId: string) => candidateDishes.some(d => d.id === dishId);
+
+  // 切换候选状态（点击卡片主区域）
+  const toggleCandidate = (dish: Dish) => {
+    setCandidateDishes(prev =>
+      prev.some(d => d.id === dish.id)
+        ? prev.filter(d => d.id !== dish.id)
+        : [...prev, dish]
+    );
+  };
+
+  // 移除单个候选
+  const removeFromCandidate = (dishId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCandidateDishes(prev => prev.filter(d => d.id !== dishId));
+  };
+
+  // 切换收藏
   const handleToggleFavorite = async (dish: Dish, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -44,74 +60,67 @@ export default function Dishes() {
     }
   };
 
-  const handleDishClick = (dish: Dish) => {
-    Dialog.confirm({
-      title: `🍽️ ${dish.name}`,
-      content: (
-        <div className="dish-detail-content">
-          <div className="dish-detail-rating">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} className={i < dish.rating ? 'star-filled' : 'star-empty'}>★</span>
-            ))}
-          </div>
-          {dish.tags && dish.tags.length > 0 && (
-            <div className="dish-detail-tags">
-              {dish.tags.map(tag => (
-                <span key={tag} className="dish-detail-tag">{tag}</span>
-              ))}
-            </div>
-          )}
-          {dish.category && (
-            <div className="dish-detail-category">{dish.category.icon} {dish.category.name}</div>
-          )}
-        </div>
-      ),
-      confirmText: '🍽️ 点这道',
-      cancelText: '取消',
-      onConfirm: async () => {
-        try {
-          await createOrder({ dish_id: dish.id });
-          Toast.show({ content: '下单成功！老公收到啦~', icon: 'success' });
-        } catch {
-          Toast.show({ content: '点餐失败啦', icon: 'fail' });
-        }
-      },
-    });
+  // 长按打开详情
+  const handleLongPress = (dish: Dish) => {
+    setDetailDish(dish);
   };
 
-  const handleCategoryChange = (categoryId: string | null) => {
-    setSelectedCategory(categoryId);
-    setSelectedDishes([]);
-  };
-
-  const toggleDishSelection = (dishId: string, e: React.MouseEvent) => {
+  // 打开详情弹窗（通过按钮）
+  const handleOpenDetail = (dish: Dish, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedDishes(prev =>
-      prev.includes(dishId)
-        ? prev.filter(id => id !== dishId)
-        : [...prev, dishId]
-    );
+    setDetailDish(dish);
   };
 
+  // 关闭详情弹窗
+  const handleCloseDetail = () => {
+    setDetailDish(null);
+  };
+
+  // 详情弹窗中"加入候选"
+  const handleAddFromDetail = () => {
+    if (detailDish && !isInCandidate(detailDish.id)) {
+      setCandidateDishes(prev => [...prev, detailDish]);
+      Toast.show({ content: `已加入候选：${detailDish.name}`, icon: 'success' });
+    }
+    setDetailDish(null);
+  };
+
+  // 详情弹窗中"点这道"
+  const handleOrderFromDetail = async () => {
+    if (!detailDish) return;
+    try {
+      await createOrder({ dish_id: detailDish.id });
+      Toast.show({ content: '下单成功！老公收到啦~', icon: 'success' });
+      setDetailDish(null);
+    } catch {
+      Toast.show({ content: '点餐失败啦', icon: 'fail' });
+    }
+  };
+
+  // 批量点餐
   const handleBatchOrder = () => {
-    if (selectedDishes.length === 0) return;
-    const dishNames = selectedDishes.map(id => dishes.find(d => d.id === id)?.name).join('、');
+    if (candidateDishes.length === 0) return;
+    const dishNames = candidateDishes.map(d => d.name).join('、');
     Dialog.confirm({
-      title: '🎉 批量点餐',
-      content: `确定要点 "${dishNames}" 共 ${selectedDishes.length} 道菜吗？`,
+      title: '🎉 确认点餐',
+      content: `确定要点 "${dishNames}" 共 ${candidateDishes.length} 道菜吗？`,
       confirmText: '就是这些了',
       cancelText: '再选选',
       onConfirm: async () => {
         try {
-          await createBatchOrders(selectedDishes);
-          Toast.show({ content: `已点 ${selectedDishes.length} 道菜！`, icon: 'success' });
-          setSelectedDishes([]);
+          const dishIds = candidateDishes.map(d => d.id);
+          await createBatchOrders(dishIds);
+          Toast.show({ content: `已点 ${candidateDishes.length} 道菜！`, icon: 'success' });
+          setCandidateDishes([]);
         } catch {
           Toast.show({ content: '点餐失败啦', icon: 'fail' });
         }
       },
     });
   };
+
+  // 推荐菜品（取前4个高评分）
+  const recommendedDishes = [...dishes].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6);
 
   return (
     <div className="dishes-page">
@@ -123,11 +132,30 @@ export default function Dishes() {
         </button>
       </header>
 
+      {/* 推荐候选区（横滑） */}
+      {recommendedDishes.length > 0 && (
+        <div className="recommend-strip">
+          <div className="recommend-strip-label">👑 推荐</div>
+          <div className="recommend-strip-scroll">
+            {recommendedDishes.map(dish => (
+              <div
+                key={dish.id}
+                className={`recommend-chip ${isInCandidate(dish.id) ? 'selected' : ''}`}
+                onClick={() => toggleCandidate(dish)}
+              >
+                {dish.name}
+                {isInCandidate(dish.id) && <span className="check-icon">✓</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 分类Tab */}
       <div className="category-tabs">
         <button
           className={`category-tab ${selectedCategory === null ? 'active' : ''}`}
-          onClick={() => handleCategoryChange(null)}
+          onClick={() => setSelectedCategory(null)}
         >
           🌟 全部
         </button>
@@ -135,7 +163,7 @@ export default function Dishes() {
           <button
             key={category.id}
             className={`category-tab ${selectedCategory === category.id ? 'active' : ''}`}
-            onClick={() => handleCategoryChange(category.id)}
+            onClick={() => setSelectedCategory(category.id)}
           >
             {category.icon} {category.name}
           </button>
@@ -162,24 +190,15 @@ export default function Dishes() {
             {dishes.map((dish) => (
               <div
                 key={dish.id}
-                className={`dish-card ${selectedDishes.includes(dish.id) ? 'selected' : ''}`}
-                onClick={() => handleDishClick(dish)}
+                className={`dish-card ${isInCandidate(dish.id) ? 'selected' : ''}`}
+                onClick={() => toggleCandidate(dish)}
+                onContextMenu={(e) => { e.preventDefault(); handleLongPress(dish); }}
+                onTouchStart={() => {}}
               >
                 {/* 选中标记 */}
-                <div
-                  className="dish-check"
-                  onClick={(e) => toggleDishSelection(dish.id, e)}
-                >
-                  {selectedDishes.includes(dish.id) ? '✓' : ''}
-                </div>
-
-                {/* 收藏按钮 */}
-                <button
-                  className={`dish-favorite ${isFavorited(dish.id) ? 'favorited' : ''}`}
-                  onClick={(e) => handleToggleFavorite(dish, e)}
-                >
-                  {isFavorited(dish.id) ? '❤️' : '🤍'}
-                </button>
+                {isInCandidate(dish.id) && (
+                  <div className="dish-check">✓</div>
+                )}
 
                 {/* 菜品图标 */}
                 <div className="dish-icon">🍽️</div>
@@ -202,20 +221,94 @@ export default function Dishes() {
                     ))}
                   </div>
                 )}
+
+                {/* 收藏按钮 */}
+                <div
+                  className={`dish-footer ${isInCandidate(dish.id) ? 'with-selection' : ''}`}>
+                  <button
+                    className={`dish-favorite ${isFavorited(dish.id) ? 'favorited' : ''}`}
+                    onClick={(e) => handleToggleFavorite(dish, e)}
+                  >
+                    {isFavorited(dish.id) ? '❤️' : '🤍'}
+                  </button>
+                  <button
+                    className="dish-detail-btn"
+                    onClick={(e) => handleOpenDetail(dish, e)}
+                  >
+                    ⋯
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </main>
 
-      {/* 批量选择底部栏 */}
-      {selectedDishes.length > 0 && (
-        <div className="batch-order-bar">
-          <span className="batch-count">已选 {selectedDishes.length} 道菜</span>
-          <button className="batch-btn" onClick={handleBatchOrder}>
-            🍽️ 点餐
+      {/* 候选池（悬浮底部） */}
+      {candidateDishes.length > 0 && (
+        <div className="candidate-pool">
+          <div className="candidate-header">
+            <span className="candidate-label">今晚候选</span>
+            <span className="candidate-count">{candidateDishes.length}道</span>
+          </div>
+          <div className="candidate-dishes">
+            {candidateDishes.map(dish => (
+              <div key={dish.id} className="candidate-chip">
+                <span>{dish.name}</span>
+                <button
+                  className="candidate-remove"
+                  onClick={(e) => removeFromCandidate(dish.id, e)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <button className="candidate-order-btn" onClick={handleBatchOrder}>
+            就吃这些 🍽️
           </button>
         </div>
+      )}
+
+      {/* 详情弹窗 */}
+      {detailDish && (
+        <Dialog
+          visible={true}
+          title={`🍽️ ${detailDish.name}`}
+          onClose={handleCloseDetail}
+          footer={[
+            { text: '取消', onClick: handleCloseDetail },
+            { text: '加入候选', onClick: handleAddFromDetail },
+            { text: '点这道', onClick: handleOrderFromDetail },
+          ]}
+        >
+          <div className="dish-detail-content">
+            <div className="dish-detail-icon">{detailDish.rating >= 4 ? '😍' : detailDish.rating >= 3 ? '😊' : '😐'}</div>
+            <div className="dish-detail-rating">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <span key={i} className={i < detailDish.rating ? 'star-filled' : 'star-empty'}>★</span>
+              ))}
+            </div>
+            {detailDish.tags && detailDish.tags.length > 0 && (
+              <div className="dish-detail-tags">
+                {detailDish.tags.map(tag => (
+                  <span key={tag} className="dish-detail-tag">{tag}</span>
+                ))}
+              </div>
+            )}
+            {detailDish.category && (
+              <div className="dish-detail-category">{detailDish.category.icon} {detailDish.category.name}</div>
+            )}
+            <div className="dish-detail-actions">
+              <button
+                className={`detail-favorite-btn ${isFavorited(detailDish.id) ? 'favorited' : ''}`}
+                onClick={(e) => { handleToggleFavorite(detailDish, e); }}
+              >
+                {isFavorited(detailDish.id) ? '❤️ 已收藏' : '🤍 收藏'}
+              </button>
+            </div>
+          </div>
+        </Dialog>
       )}
     </div>
   );

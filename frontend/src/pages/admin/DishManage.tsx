@@ -22,6 +22,7 @@ export default function DishManage() {
   const [searchText, setSearchText] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
   const [imageFile, setImageFile] = useState<File | undefined>();
+  const [imageUrl, setImageUrl] = useState<string | undefined>();
 
   useEffect(() => {
     fetchCategories();
@@ -55,11 +56,13 @@ export default function DishManage() {
         is_recommended: dish.is_recommended,
         description: dish.description,
       });
+      setImageUrl((dish as any).image_url || (dish as any).image || undefined);
     } else {
       setEditingDish(null);
       form.resetFields();
     }
     setImageFile(undefined);
+    setImageUrl(undefined);
     setModalVisible(true);
   };
 
@@ -68,6 +71,19 @@ export default function DishManage() {
     setEditingDish(null);
     form.resetFields();
     setImageFile(undefined);
+    setImageUrl(undefined);
+  };
+
+  const handleImageChange = (file: File) => {
+    setImageFile(file);
+    // 用 FileReader 读取文件为 base64 用于预览和提交
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      setImageUrl(result); // base64 data URL
+    };
+    reader.readAsDataURL(file);
+    return false;
   };
 
   const handleSubmit = async () => {
@@ -79,7 +95,7 @@ export default function DishManage() {
         tags: values.tags || [],
         is_recommended: values.is_recommended,
         description: values.description,
-        image: imageFile,
+        image_url: imageUrl,
       };
 
       if (editingDish) {
@@ -109,11 +125,14 @@ export default function DishManage() {
       title: '图片',
       dataIndex: 'image',
       key: 'image',
-      render: (image: string) => image ? (
-        <Image src={image} width={48} height={48} style={{ objectFit: 'cover', borderRadius: 4 }} />
-      ) : (
-        <div style={{ width: 48, height: 48, background: '#f0f0f0', borderRadius: 4 }} />
-      ),
+      render: (_: unknown, record: DishListItem) => {
+        const imgUrl = record.image || (record as any).image_url;
+        return imgUrl ? (
+          <Image src={imgUrl} width={48} height={48} style={{ objectFit: 'cover', borderRadius: 4 }} />
+        ) : (
+          <div style={{ width: 48, height: 48, background: '#f0f0f0', borderRadius: 4 }} />
+        );
+      }
     },
     { title: '菜名', dataIndex: 'name', key: 'name' },
     {
@@ -230,20 +249,21 @@ export default function DishManage() {
             <Input placeholder="请输入菜名" />
           </Form.Item>
 
-          <Form.Item name="image" label="图片">
+          <Form.Item label="图片">
             <Upload
               listType="picture-card"
               maxCount={1}
-              beforeUpload={(file) => {
-                setImageFile(file);
-                return false;
-              }}
+              beforeUpload={handleImageChange}
               showUploadList={false}
             >
-              <div>
-                <UploadOutlined />
-                <div style={{ marginTop: 8 }}>上传图片</div>
-              </div>
+              {imageUrl ? (
+                <img src={imageUrl} alt="预览" style={{ width: 96, height: 96, objectFit: 'cover' }} />
+              ) : (
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>上传图片</div>
+                </div>
+              )}
             </Upload>
           </Form.Item>
 

@@ -242,6 +242,7 @@ class HusbandTaskStatusUpdate(BaseModel):
 class HusbandTaskResponse(BaseModel):
     id: UUID
     dish_id: UUID
+    order_id: UUID
     status: str
     created_at: datetime
     cooked_at: Optional[datetime]
@@ -457,6 +458,7 @@ class OrderItemResponse(BaseModel):
     status: str
     notes: Optional[str] = None
     cooked_at: Optional[datetime] = None
+    dish: Optional[DishResponse] = None  # 菜品详情
 
     class Config:
         from_attributes = True

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { Table, Tag, Switch, Spin, Image } from 'antd';
+import { Table, Tag, Spin } from 'antd';
 import { useAdminStore } from '../../stores/adminStore';
-import type { HistoryListItem } from '../../api/admin';
+import { formatDateTime } from '../../utils/formatTime';
 
 export default function HistoryManage() {
   const {
@@ -10,11 +10,11 @@ export default function HistoryManage() {
   } = useAdminStore();
 
   useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+    fetchHistory(historyParams);
+  }, [fetchHistory, historyParams]);
 
   const handlePageChange = (page: number, pageSize: number) => {
-    useAdminStore.setState({ historyParams: { page, page_size: pageSize } });
+    useAdminStore.setState({ historyParams: { ...historyParams, page, page_size: pageSize } });
   };
 
   const handleCompletedChange = async (id: string, checked: boolean) => {
@@ -26,50 +26,32 @@ export default function HistoryManage() {
   };
 
   const columns = [
-    {
-      title: '图片',
-      dataIndex: ['dish', 'image'],
-      key: 'image',
-      render: (image: string) => image ? (
-        <Image src={image} width={48} height={48} style={{ objectFit: 'cover', borderRadius: 4 }} />
-      ) : (
-        <div style={{ width: 48, height: 48, background: '#f0f0f0', borderRadius: 4 }} />
-      ),
-    },
-    { title: '菜名', dataIndex: ['dish', 'name'], key: 'dishName' },
-    {
-      title: '分类',
-      dataIndex: ['dish', 'category', 'name'],
-      key: 'category',
-    },
+    { title: '菜品', dataIndex: 'dish_names', key: 'dish_names', ellipsis: true },
+    { title: '数量', dataIndex: 'dish_count', key: 'dish_count', width: 80 },
     {
       title: '状态',
-      dataIndex: 'is_completed',
-      key: 'is_completed',
-      render: (completed: boolean) => (
-        <Tag color={completed ? 'green' : 'orange'}>
-          {completed ? '已完成' : '待完成'}
-        </Tag>
-      ),
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => {
+        const colorMap: Record<string, string> = {
+          pending: 'orange',
+          cooking: 'blue',
+          completed: 'green',
+          rejected: 'red',
+          cancelled: 'default'
+        };
+        const textMap: Record<string, string> = {
+          pending: '待处理',
+          cooking: '制作中',
+          completed: '已完成',
+          rejected: '已拒绝',
+          cancelled: '已取消'
+        };
+        return <Tag color={colorMap[status] || 'default'}>{textMap[status] || status}</Tag>;
+      }
     },
-    {
-      title: '是否完成',
-      dataIndex: 'is_completed',
-      key: 'switch',
-      render: (completed: boolean, record: HistoryListItem) => (
-        <Switch
-          checked={completed}
-          onChange={(checked) => handleCompletedChange(record.id, checked)}
-        />
-      ),
-    },
-    { title: '点餐时间', dataIndex: 'created_at', key: 'created_at' },
-    {
-      title: '完成时间',
-      dataIndex: 'completed_at',
-      key: 'completed_at',
-      render: (time: string) => time || '-',
-    },
+    { title: '点餐时间', dataIndex: 'created_at', key: 'created_at', render: (t: string) => formatDateTime(t) },
+    { title: '完成时间', dataIndex: 'completed_at', key: 'completed_at', render: (t: string) => formatDateTime(t) },
   ];
 
   if (historyLoading) {

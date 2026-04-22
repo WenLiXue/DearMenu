@@ -37,6 +37,7 @@ export interface DishListItem {
   id: string;
   name: string;
   image?: string;
+  image_url?: string;
   category_id: string | null;
   tags: string[];
   rating: number;
@@ -51,7 +52,7 @@ export interface DishListItem {
 
 export interface DishFormData {
   name: string;
-  image?: File;
+  image_url?: string;
   category_id?: string;
   tags: string[];
   is_recommended?: boolean;
@@ -63,8 +64,8 @@ export const getDishList = async (params?: {
   category_id?: string;
   page?: number;
   page_size?: number;
-}): Promise<{ list: DishListItem[]; total: number }> => {
-  const response = await api.get<{ list: DishListItem[]; total: number }>('/admin/dishes', {
+}): Promise<{ items: DishListItem[]; total: number }> => {
+  const response = await api.get<{ items: DishListItem[]; total: number }>('/admin/dishes', {
     headers: getAuthHeaders(),
     params,
   });
@@ -72,31 +73,29 @@ export const getDishList = async (params?: {
 };
 
 export const createDish = async (data: DishFormData): Promise<DishListItem> => {
-  const formData = new FormData();
-  formData.append('name', data.name);
-  if (data.image) formData.append('image', data.image);
-  if (data.category_id) formData.append('category_id', data.category_id);
-  data.tags.forEach(tag => formData.append('tags', tag));
-  if (data.is_recommended !== undefined) formData.append('is_recommended', String(data.is_recommended));
-  if (data.description) formData.append('description', data.description);
-
-  const response = await api.post<DishListItem>('/admin/dishes', formData, {
-    headers: { ...getAuthHeaders(), 'Content-Type': 'multipart/form-data' },
+  const response = await api.post<DishListItem>('/admin/dishes', {
+    name: data.name,
+    category_id: data.category_id,
+    tags: data.tags,
+    is_recommended: data.is_recommended,
+    description: data.description,
+    image_url: data.image_url,
+  }, {
+    headers: { ...getAuthHeaders() },
   });
   return response.data;
 };
 
 export const updateDish = async (id: string, data: DishFormData): Promise<DishListItem> => {
-  const formData = new FormData();
-  formData.append('name', data.name);
-  if (data.image) formData.append('image', data.image);
-  if (data.category_id) formData.append('category_id', data.category_id);
-  data.tags.forEach(tag => formData.append('tags', tag));
-  if (data.is_recommended !== undefined) formData.append('is_recommended', String(data.is_recommended));
-  if (data.description) formData.append('description', data.description);
-
-  const response = await api.put<DishListItem>(`/admin/dishes/${id}`, formData, {
-    headers: { ...getAuthHeaders(), 'Content-Type': 'multipart/form-data' },
+  const response = await api.put<DishListItem>(`/admin/dishes/${id}`, {
+    name: data.name,
+    category_id: data.category_id,
+    tags: data.tags,
+    is_recommended: data.is_recommended,
+    description: data.description,
+    image_url: data.image_url,
+  }, {
+    headers: { ...getAuthHeaders() },
   });
   return response.data;
 };
@@ -137,8 +136,9 @@ export const deleteCategory = async (id: string): Promise<void> => {
 // ============ 收藏管理 ============
 export interface FavoriteListItem {
   id: string;
-  dish: DishListItem;
-  is_recommended: boolean;
+  dish_id: string;
+  dish_name: string;
+  dish_rating: number;
   created_at: string;
 }
 
@@ -154,14 +154,15 @@ export const updateFavoriteRecommend = async (id: string, is_recommended: boolea
 // ============ 历史记录 ============
 export interface HistoryListItem {
   id: string;
-  dish: DishListItem;
-  is_completed: boolean;
-  completed_at?: string;
+  status: string;
+  dish_names: string;
+  dish_count: number;
   created_at: string;
+  completed_at?: string;
 }
 
-export const getHistoryList = async (params?: { page?: number; page_size?: number }): Promise<{ list: HistoryListItem[]; total: number }> => {
-  const response = await api.get<{ list: HistoryListItem[]; total: number }>('/admin/history', {
+export const getHistoryList = async (params?: { page?: number; page_size?: number }): Promise<{ items: HistoryListItem[]; total: number }> => {
+  const response = await api.get<{ items: HistoryListItem[]; total: number }>('/admin/history', {
     headers: getAuthHeaders(),
     params,
   });
@@ -178,7 +179,12 @@ export interface DashboardStats {
   total_categories: number;
   total_favorites: number;
   total_history: number;
-  recent_history: HistoryListItem[];
+  recent_history: {
+    id: string;
+    dish_names: string;
+    dish_count: number;
+    created_at: string;
+  }[];
 }
 
 export interface TrendData {
@@ -242,7 +248,7 @@ export interface EnhancedDashboardStats {
 }
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {
-  const response = await api.get<DashboardStats>('/admin/dashboard', { headers: getAuthHeaders() });
+  const response = await api.get<DashboardStats>('/admin/stats', { headers: getAuthHeaders() });
   return response.data;
 };
 

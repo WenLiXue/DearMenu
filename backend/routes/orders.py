@@ -26,7 +26,7 @@ from services.notification_service import send_order_notification, render_templa
 router = APIRouter(prefix="/api/orders", tags=["订单"])
 
 
-def _build_order_item_response(item: OrderItem) -> OrderItemResponse:
+def _build_order_item_response(item: OrderItem, dish: Dish = None) -> OrderItemResponse:
     """构建订单项响应"""
     return OrderItemResponse(
         id=item.id,
@@ -34,7 +34,16 @@ def _build_order_item_response(item: OrderItem) -> OrderItemResponse:
         dish_id=item.dish_id,
         status=item.status.value,
         notes=item.notes,
-        cooked_at=item.cooked_at
+        cooked_at=item.cooked_at,
+        dish=DishResponse(
+            id=dish.id,
+            user_id=dish.user_id,
+            category_id=dish.category_id,
+            name=dish.name,
+            tags=dish.tags or [],
+            rating=dish.rating,
+            created_at=dish.created_at
+        ) if dish else None
     )
 
 
@@ -73,7 +82,7 @@ def _build_order_response(order: Order, db: Session) -> OrderResponse:
         created_at=order.created_at,
         confirmed_at=order.confirmed_at,
         completed_at=order.completed_at,
-        items=[_build_order_item_response(item) for item in items],
+        items=[_build_order_item_response(item, dishes_map.get(item.dish_id)) for item in items],
         dishes=dishes
     )
 

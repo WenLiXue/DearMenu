@@ -31,6 +31,12 @@ export default function DishForm() {
     }
   }, [id, dishes, isEdit]);
 
+  const parseTags = (input: string): string[] => {
+    if (!input.trim()) return [];
+    // 支持空格、顿号、英文逗号、中文逗号分隔
+    return input.split(/[\s　、，,]+/).map(t => t.trim()).filter(t => t);
+  };
+
   const handleSubmit = async () => {
     if (!name.trim()) {
       Toast.show({ content: '请输入菜品名称', icon: 'fail' });
@@ -42,7 +48,7 @@ export default function DishForm() {
       dishData.category_id = categoryId;
     }
     if (tags.trim()) {
-      dishData.tags = tags.split(',').map(t => t.trim()).filter(t => t);
+      dishData.tags = parseTags(tags);
     }
 
     try {

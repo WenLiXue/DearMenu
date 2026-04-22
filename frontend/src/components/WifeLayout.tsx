@@ -50,7 +50,7 @@ export default function WifeLayout() {
               title={tab.title}
               icon={<span className="tab-icon">{tab.icon}</span>}
               activeIcon={<span className="tab-icon tab-icon-active">{tab.icon}</span>}
-              badge={tab.key === '/orders' && activeOrderCount > 0 ? activeOrderCount : 0}
+              badge={tab.key === '/orders' && activeOrderCount > 0 ? activeOrderCount : undefined}
             />
           ))}
         </TabBar>

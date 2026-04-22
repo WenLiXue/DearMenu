@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { Table, Tag, Switch, Spin, Image } from 'antd';
+import { Table, Spin } from 'antd';
 import { useAdminStore } from '../../stores/adminStore';
-import type { FavoriteListItem } from '../../api/admin';
+import { formatDateTime } from '../../utils/formatTime';
 
 export default function FavoriteManage() {
   const { favorites, favoriteLoading, fetchFavorites, updateFavoriteRecommend } = useAdminStore();
@@ -19,46 +19,9 @@ export default function FavoriteManage() {
   };
 
   const columns = [
-    {
-      title: '图片',
-      dataIndex: ['dish', 'image'],
-      key: 'image',
-      render: (image: string) => image ? (
-        <Image src={image} width={48} height={48} style={{ objectFit: 'cover', borderRadius: 4 }} />
-      ) : (
-        <div style={{ width: 48, height: 48, background: '#f0f0f0', borderRadius: 4 }} />
-      ),
-    },
-    { title: '菜名', dataIndex: ['dish', 'name'], key: 'dishName' },
-    {
-      title: '分类',
-      dataIndex: ['dish', 'category', 'name'],
-      key: 'category',
-    },
-    {
-      title: '标签',
-      dataIndex: ['dish', 'tags'],
-      key: 'tags',
-      render: (tags: string[]) => (
-        <>
-          {tags.map((tag: string) => (
-            <Tag key={tag} className="admin-tag">{tag}</Tag>
-          ))}
-        </>
-      ),
-    },
-    {
-      title: '推荐到首页',
-      dataIndex: 'is_recommended',
-      key: 'is_recommended',
-      render: (recommended: boolean, record: FavoriteListItem) => (
-        <Switch
-          checked={recommended}
-          onChange={(checked) => handleRecommendChange(record.id, checked)}
-        />
-      ),
-    },
-    { title: '收藏时间', dataIndex: 'created_at', key: 'created_at' },
+    { title: '菜名', dataIndex: 'dish_name', key: 'dishName' },
+    { title: '评分', dataIndex: 'dish_rating', key: 'dishRating' },
+    { title: '收藏时间', dataIndex: 'created_at', key: 'created_at', render: (t: string) => formatDateTime(t) },
   ];
 
   if (favoriteLoading) {

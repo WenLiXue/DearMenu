@@ -17,7 +17,8 @@ const api = axios.create({
 
 export interface HusbandTask {
   id: string;
-  dish: Dish;
+  dish_id: string;
+  order_id: string;
   status: 'pending' | 'cooking' | 'completed';
   started_at?: string;
   completed_at?: string;

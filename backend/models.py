@@ -107,6 +107,7 @@ class Favorite(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    family_id = Column(UUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=True)
     dish_id = Column(UUID(as_uuid=True), ForeignKey("dishes.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -114,7 +115,7 @@ class Favorite(Base):
     dish = relationship("Dish", back_populates="favorites")
 
     __table_args__ = (
-        UniqueConstraint('user_id', 'dish_id', name='unique_user_dish_favorite'),
+        UniqueConstraint('family_id', 'dish_id', name='unique_family_dish_favorite'),
     )
 
 

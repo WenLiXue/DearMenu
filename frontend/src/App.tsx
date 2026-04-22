@@ -22,6 +22,7 @@ import CategoryManage from './pages/admin/CategoryManage';
 import FavoriteManage from './pages/admin/FavoriteManage';
 import HistoryManage from './pages/admin/HistoryManage';
 import Settings from './pages/admin/Settings';
+import AdminProfile from './pages/admin/AdminProfile';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Chat from './pages/Chat';
@@ -90,6 +91,7 @@ function App() {
               <Route path="/admin/favorites" element={<FavoriteManage />} />
               <Route path="/admin/history" element={<HistoryManage />} />
               <Route path="/admin/settings" element={<Settings />} />
+              <Route path="/admin/profile" element={<AdminProfile />} />
             </Route>
           </Routes>
         </BrowserRouter>

@@ -1,6 +1,6 @@
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, Response
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -76,8 +76,8 @@ def remove_favorite(
     current_user: User = Depends(get_current_user)
 ):
     favorite = db.query(Favorite).filter(
-        Favorite.family_id == current_user.family_id,
-        Favorite.dish_id == dish_id
+        Favorite.dish_id == dish_id,
+        Favorite.family_id == current_user.family_id
     ).first()
 
     if not favorite:
@@ -86,4 +86,4 @@ def remove_favorite(
     db.delete(favorite)
     db.commit()
 
-    return success_response(message="取消收藏成功")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

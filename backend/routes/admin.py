@@ -6,11 +6,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from database import get_db
-from models import Dish, Category, Favorite, OrderHistory, User
+from models import Dish, Category, Favorite, User, Order
 from schemas import (
     AdminDishCreate, AdminDishUpdate, AdminDishResponse,
     AdminCategoryCreate, AdminCategoryUpdate, AdminCategoryResponse,
-    AdminStatsResponse, FavoriteResponse, HistoryResponse
+    AdminStatsResponse
 )
 from auth import get_current_user
 from utils.response import success_response, error_response, list_response
@@ -41,9 +41,20 @@ def get_dishes(
     total = query.count()
     dishes = query.order_by(Dish.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
 
+    # 组装返回数据，包含分类信息
+    result = []
+    for d in dishes:
+        category = db.query(Category).filter(Category.id == d.category_id).first() if d.category_id else None
+        item = AdminDishResponse.model_validate(d).model_dump(mode='json')
+        item['category'] = {
+            'id': str(category.id),
+            'name': category.name
+        } if category else None
+        result.append(item)
+
     return success_response(
         data={
-            "items": [AdminDishResponse.model_validate(d).model_dump(mode='json') for d in dishes],
+            "items": result,
             "total": total,
             "page": page,
             "page_size": page_size,
@@ -150,7 +161,12 @@ def get_categories(
         Category.family_id == current_user.family_id
     ).order_by(Category.sort_order).all()
 
-    category_list = [AdminCategoryResponse.model_validate(c).model_dump(mode='json') for c in categories]
+    category_list = []
+    for c in categories:
+        item = AdminCategoryResponse.model_validate(c).model_dump(mode='json')
+        item['dish_count'] = db.query(Dish).filter(Dish.category_id == c.id).count()
+        category_list.append(item)
+
     return list_response(data=category_list, total=len(category_list))
 
 
@@ -269,26 +285,29 @@ def get_history(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """获取所有历史记录"""
-    query = db.query(OrderHistory).filter(OrderHistory.family_id == current_user.family_id)
+    """获取所有订单"""
+    query = db.query(Order).filter(Order.family_id == current_user.family_id)
 
     if date:
-        query = query.filter(func.date(OrderHistory.created_at) == date)
+        date_start = datetime.combine(date, datetime.min.time())
+        date_end = datetime.combine(date, datetime.max.time())
+        query = query.filter(Order.created_at >= date_start, Order.created_at <= date_end)
 
     total = query.count()
-    history_records = query.order_by(OrderHistory.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+    orders = query.order_by(Order.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
 
     result = []
-    for record in history_records:
-        dish = db.query(Dish).filter(Dish.id == record.dish_id).first()
-        if dish:
-            result.append({
-                "id": str(record.id),
-                "dish_id": str(record.dish_id),
-                "dish_name": dish.name,
-                "dish_rating": dish.rating,
-                "created_at": record.created_at.isoformat()
-            })
+    for order in orders:
+        # 获取订单下的所有菜品名称
+        dish_names = [item.dish.name for item in order.items if item.dish]
+        result.append({
+            "id": str(order.id),
+            "status": order.status.value if hasattr(order.status, 'value') else str(order.status),
+            "dish_names": ", ".join(dish_names) if dish_names else "-",
+            "dish_count": len(dish_names),
+            "created_at": order.created_at.isoformat(),
+            "completed_at": order.completed_at.isoformat() if order.completed_at else None,
+        })
 
     return success_response(
         data={
@@ -312,13 +331,27 @@ def get_stats(
     total_dishes = db.query(Dish).filter(Dish.family_id == current_user.family_id).count()
     total_categories = db.query(Category).filter(Category.family_id == current_user.family_id).count()
     total_favorites = db.query(Favorite).join(Dish, Favorite.dish_id == Dish.id).filter(Dish.family_id == current_user.family_id).count()
-    total_history = db.query(OrderHistory).filter(OrderHistory.family_id == current_user.family_id).count()
+    total_history = db.query(Order).filter(Order.family_id == current_user.family_id).count()
 
     today = date.today()
-    today_orders = db.query(OrderHistory).filter(
-        OrderHistory.family_id == current_user.family_id,
-        func.date(OrderHistory.created_at) == today
+    today_orders = db.query(Order).filter(
+        Order.family_id == current_user.family_id,
+        func.date(Order.created_at) == today
     ).count()
+
+    # 最近5条订单
+    recent_orders = db.query(Order).filter(
+        Order.family_id == current_user.family_id
+    ).order_by(Order.created_at.desc()).limit(5).all()
+    recent_history = []
+    for order in recent_orders:
+        dish_names = [item.dish.name for item in order.items if item.dish]
+        recent_history.append({
+            "id": str(order.id),
+            "dish_names": ", ".join(dish_names) if dish_names else "-",
+            "dish_count": len(dish_names),
+            "created_at": order.created_at.isoformat()
+        })
 
     response = AdminStatsResponse(
         total_dishes=total_dishes,
@@ -327,5 +360,7 @@ def get_stats(
         total_history=total_history,
         today_orders=today_orders
     )
+    response_dict = response.model_dump(mode='json')
+    response_dict['recent_history'] = recent_history
 
-    return success_response(data=response.model_dump(mode='json'))
+    return success_response(data=response_dict)

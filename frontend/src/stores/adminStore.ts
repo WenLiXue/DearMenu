@@ -77,7 +77,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     try {
       const params = get().dishParams;
       const result = await adminApi.getDishList(params);
-      set({ dishes: result.list, dishTotal: result.total, dishLoading: false });
+      set({ dishes: result.items, dishTotal: result.total, dishLoading: false });
     } catch {
       set({ dishLoading: false });
     }
@@ -155,12 +155,12 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     page_size: 10,
   },
 
-  fetchHistory: async () => {
+  fetchHistory: async (params?: { page?: number; page_size?: number }) => {
     set({ historyLoading: true });
     try {
-      const params = get().historyParams;
-      const result = await adminApi.getHistoryList(params);
-      set({ history: result.list, historyTotal: result.total, historyLoading: false });
+      const queryParams = params || get().historyParams;
+      const result = await adminApi.getHistoryList(queryParams);
+      set({ history: result.items, historyTotal: result.total, historyLoading: false });
     } catch {
       set({ historyLoading: false });
     }

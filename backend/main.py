@@ -24,9 +24,6 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001",
     ],
     allow_credentials=False,  # 使用 Authorization header 传递 token，不需要 credentials
     allow_methods=["*"],

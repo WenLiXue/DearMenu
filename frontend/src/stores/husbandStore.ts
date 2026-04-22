@@ -6,10 +6,12 @@ export type TaskStatus = 'pending' | 'cooking' | 'completed';
 
 export interface HusbandTask {
   id: string;
-  dish: Dish;
+  dish_id: string;
+  order_id: string;
   status: TaskStatus;
   started_at?: string;
   completed_at?: string;
+  dish: Dish;
 }
 
 interface HusbandState {
@@ -18,6 +20,7 @@ interface HusbandState {
   isLoading: boolean;
   error: string | null;
   fetchTasks: () => Promise<void>;
+  forceRefreshTasks: () => Promise<HusbandTask[]>;
   fetchHistory: () => Promise<void>;
   startCooking: (taskId: string) => Promise<void>;
   completeTask: (taskId: string) => Promise<void>;
@@ -42,6 +45,13 @@ export const useHusbandStore = create<HusbandState>((set, get) => ({
     }
   },
 
+  forceRefreshTasks: async () => {
+    // 强制从服务器刷新任务列表
+    const tasks = await api.getTodayTasks();
+    set({ tasks, isLoading: false, error: null });
+    return tasks;
+  },
+
   fetchHistory: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -55,11 +65,8 @@ export const useHusbandStore = create<HusbandState>((set, get) => ({
   startCooking: async (taskId: string) => {
     try {
       await api.updateTaskStatus(taskId, 'cooking');
-      set((state) => ({
-        tasks: state.tasks.map((t) =>
-          t.id === taskId ? { ...t, status: 'cooking', started_at: new Date().toISOString() } : t
-        ),
-      }));
+      // 重新获取最新任务列表
+      await get().fetchTasks();
     } catch (error: any) {
       set({ error: error.response?.data?.detail || '更新状态失败' });
     }
@@ -68,10 +75,9 @@ export const useHusbandStore = create<HusbandState>((set, get) => ({
   completeTask: async (taskId: string) => {
     try {
       await api.updateTaskStatus(taskId, 'completed');
-      // 重新获取任务列表，确保显示同订单的其他待制作菜品
-      await get().fetchTasks();
     } catch (error: any) {
       set({ error: error.response?.data?.detail || '更新状态失败' });
+      throw error;
     }
   },
 
